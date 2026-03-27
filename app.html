@@ -864,6 +864,16 @@
     out.width = total; out.height = total;
     const ctx = out.getContext('2d');
 
+    const r = (state.borderStyle === 'rounded' && bw > 0) ? 12 : 0;
+    const half = bw / 2;
+
+    // 둥근 모서리 클리핑
+    ctx.beginPath();
+    if (r > 0) ctx.roundRect(0, 0, total, total, r + half);
+    else ctx.rect(0, 0, total, total);
+    ctx.closePath();
+    ctx.clip();
+
     ctx.fillStyle = state.bg;
     ctx.fillRect(0, 0, total, total);
 
@@ -871,8 +881,6 @@
       ctx.strokeStyle = state.borderColor;
       ctx.lineWidth = bw;
       ctx.setLineDash(state.borderStyle === 'dashed' ? [8, 4] : []);
-      const half = bw / 2;
-      const r = state.borderStyle === 'rounded' ? 12 : 0;
       if (r > 0) { ctx.beginPath(); ctx.roundRect(half, half, total - bw, total - bw, r); ctx.stroke(); }
       else { ctx.strokeRect(half, half, total - bw, total - bw); }
     }
