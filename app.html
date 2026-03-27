@@ -13,13 +13,21 @@
       --primary: #073763;
       --primary-hover: #052a4a;
       --primary-light: #e8eef6;
-      --primary-text: #073763;
-      --border: #e8e8e8;
-      --bg: #f4f5f7;
+      --border: #e5e7eb;
+      --bg: #f3f4f6;
       --surface: #fff;
-      --text: #111;
-      --muted: #888;
-      --label: #555;
+      --text: #111827;
+      --muted: #6b7280;
+      --label: #374151;
+
+      /* 사이드바 전용 */
+      --sb-bg: #0f172a;
+      --sb-hover: #1e293b;
+      --sb-active: #073763;
+      --sb-text: #94a3b8;
+      --sb-text-active: #fff;
+      --sb-border: #1e293b;
+      --sb-section: #475569;
     }
 
     body {
@@ -30,12 +38,11 @@
       overflow-x: hidden;
     }
 
-    /* ── 사이드바 ── */
+    /* ── 사이드바 (사방넷 스타일) ── */
     .sidebar {
-      width: 210px;
+      width: 220px;
       flex-shrink: 0;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
+      background: var(--sb-bg);
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -44,92 +51,104 @@
     }
 
     .sidebar-logo {
-      padding: 18px 16px 14px;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid var(--sb-border);
       display: flex;
-      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
 
     .sidebar-logo img {
-      height: 26px;
+      height: 28px;
       object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
     }
 
     .sidebar-nav {
       flex: 1;
-      padding: 10px 8px;
+      padding: 14px 10px;
       overflow-y: auto;
     }
 
     .nav-section-label {
       font-size: 10px;
       font-weight: 700;
-      color: #bbb;
-      letter-spacing: 0.08em;
+      color: var(--sb-section);
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 10px 10px 6px;
+      padding: 8px 10px 6px;
+      margin-top: 4px;
+    }
+
+    .nav-divider {
+      height: 1px;
+      background: var(--sb-border);
+      margin: 8px 10px;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
       padding: 9px 12px;
-      border-radius: 8px;
+      border-radius: 7px;
       text-decoration: none;
-      color: var(--muted);
+      color: var(--sb-text);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
       border: none;
       background: transparent;
       width: 100%;
       text-align: left;
       font-family: inherit;
+      letter-spacing: -0.01em;
     }
-    .nav-item:hover { background: var(--bg); color: var(--text); }
-    .nav-item.active { background: var(--primary-light); color: var(--primary-text); }
-    .nav-item.active .nav-icon { color: var(--primary-text); }
+    .nav-item:hover { background: var(--sb-hover); color: var(--sb-text-active); }
+    .nav-item.active { background: var(--sb-active); color: var(--sb-text-active); font-weight: 700; }
+    .nav-item.active .nav-icon { color: #fff; opacity: 1; }
 
     .nav-icon {
-      width: 16px; height: 16px;
-      color: #bbb;
+      width: 15px; height: 15px;
       flex-shrink: 0;
-      transition: color 0.15s;
+      opacity: 0.6;
+      transition: opacity 0.15s;
     }
-    .nav-item:hover .nav-icon { color: var(--muted); }
+    .nav-item:hover .nav-icon { opacity: 0.9; }
 
     .sidebar-bottom {
-      padding: 12px 8px;
-      border-top: 1px solid #f0f0f0;
+      padding: 12px 10px;
+      border-top: 1px solid var(--sb-border);
     }
 
     .user-info {
       display: flex;
       align-items: center;
       gap: 9px;
-      padding: 8px 12px;
+      padding: 8px 10px;
       margin-bottom: 2px;
     }
 
     .user-avatar {
       width: 28px; height: 28px;
       border-radius: 50%;
-      background: var(--primary-light);
+      background: var(--sb-active);
+      border: 1.5px solid #1e4d8c;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
       font-weight: 800;
-      color: var(--primary-text);
+      color: #fff;
       flex-shrink: 0;
     }
 
     .user-email {
       font-size: 11px;
-      color: var(--muted);
+      color: var(--sb-section);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -140,18 +159,18 @@
       align-items: center;
       gap: 9px;
       padding: 8px 12px;
-      border-radius: 8px;
+      border-radius: 7px;
       font-family: inherit;
       font-size: 12px;
-      font-weight: 600;
-      color: #bbb;
+      font-weight: 500;
+      color: var(--sb-section);
       background: transparent;
       border: none;
       cursor: pointer;
       width: 100%;
       transition: background 0.15s, color 0.15s;
     }
-    .btn-logout:hover { background: #fff0f0; color: #e53e3e; }
+    .btn-logout:hover { background: rgba(239,68,68,0.12); color: #f87171; }
 
     /* ── 메인 ── */
     .main {
@@ -159,7 +178,6 @@
       min-width: 0;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
     .topbar {
@@ -170,11 +188,12 @@
       display: flex;
       align-items: center;
       flex-shrink: 0;
+      gap: 8px;
     }
 
     .page-breadcrumb {
       font-size: 13px;
-      color: #bbb;
+      color: #9ca3af;
     }
     .page-breadcrumb span { color: var(--text); font-weight: 700; }
 
@@ -185,7 +204,7 @@
     }
 
     .page-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 800;
       color: var(--text);
       letter-spacing: -0.02em;
@@ -199,20 +218,20 @@
       align-items: flex-start;
     }
 
+    /* 설정 패널: 고정 폭 */
     .panel {
-      flex: 1;
-      min-width: 0;
+      width: 340px;
+      flex-shrink: 0;
       background: var(--surface);
       border-radius: 14px;
       padding: 22px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
     /* URL 입력 행 */
     .url-row {
       display: flex;
       gap: 8px;
-      margin-bottom: 0;
     }
 
     input.url-input {
@@ -224,7 +243,7 @@
       border-radius: 8px;
       color: var(--text);
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
       transition: background 0.2s;
     }
@@ -232,13 +251,13 @@
     input.url-input::placeholder { color: #bbb; }
 
     .regen-inline {
-      padding: 10px 16px;
+      padding: 10px 14px;
       background: var(--primary);
       color: #fff;
       border: none;
       border-radius: 8px;
       font-family: inherit;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
@@ -246,19 +265,19 @@
     }
     .regen-inline:hover { background: var(--primary-hover); }
 
-    .divider { height: 1px; background: #f4f5f7; margin: 16px 0; }
+    .divider { height: 1px; background: #f3f4f6; margin: 14px 0; }
 
     .sec-label {
       font-size: 10px;
       font-weight: 700;
-      color: #bbb;
+      color: #9ca3af;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       margin-bottom: 10px;
     }
 
     .field-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--label);
       margin-bottom: 7px;
@@ -268,7 +287,7 @@
     .palette-row { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
 
     .swatch {
-      width: 22px; height: 22px;
+      width: 20px; height: 20px;
       border-radius: 5px;
       cursor: pointer;
       border: 2px solid transparent;
@@ -276,12 +295,12 @@
       flex-shrink: 0;
     }
     .swatch:hover { transform: scale(1.2); }
-    .swatch.selected { border-color: var(--primary); transform: scale(1.2); }
+    .swatch.selected { border-color: var(--primary); transform: scale(1.15); }
     .swatch[data-color="#ffffff"] { border-color: #ddd; }
     .swatch[data-color="#ffffff"].selected { border-color: var(--primary); }
 
     .plus-btn {
-      width: 22px; height: 22px;
+      width: 20px; height: 20px;
       border-radius: 5px;
       border: 1.5px dashed #ccc;
       background: transparent;
@@ -289,7 +308,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+      font-size: 12px;
       color: #bbb;
       position: relative;
       transition: border-color 0.15s;
@@ -300,14 +319,14 @@
       opacity: 0; cursor: pointer; top: 0; left: 0; border: none; padding: 0;
     }
 
-    .two-col { display: flex; gap: 20px; }
+    .two-col { display: flex; gap: 16px; }
     .two-col > .col { flex: 1; min-width: 0; }
 
     /* 테두리 */
-    .bstyle-row { display: flex; gap: 6px; margin-bottom: 14px; }
+    .bstyle-row { display: flex; gap: 5px; margin-bottom: 12px; }
     .bstyle-btn {
       flex: 1;
-      padding: 8px 4px 6px;
+      padding: 7px 4px 5px;
       border: 1.5px solid var(--border);
       border-radius: 8px;
       background: var(--surface);
@@ -318,20 +337,20 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       transition: all 0.15s;
     }
     .bstyle-btn:hover { border-color: #ccc; }
-    .bstyle-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-text); font-weight: 700; }
-    .bstyle-btn svg { width: 24px; height: 24px; }
+    .bstyle-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
+    .bstyle-btn svg { width: 22px; height: 22px; }
 
     /* 슬라이더 */
-    .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
-    .slider-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; }
+    .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; height: 4px; }
+    .slider-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 28px; text-align: right; }
 
     /* 오류 정정 */
-    .ec-row { display: flex; gap: 6px; }
+    .ec-row { display: flex; gap: 5px; }
     .ec-btn {
       flex: 1; padding: 7px 4px;
       border: 1.5px solid var(--border);
@@ -344,15 +363,15 @@
     }
     .ec-btn:hover { border-color: #ccc; }
     .ec-btn.active { border-color: var(--primary); background: var(--primary-light); }
-    .ec-btn .lv { font-size: 13px; font-weight: 800; color: #aaa; display: block; }
-    .ec-btn.active .lv { color: var(--primary-text); }
+    .ec-btn .lv { font-size: 12px; font-weight: 800; color: #aaa; display: block; }
+    .ec-btn.active .lv { color: var(--primary); }
     .ec-btn .desc { font-size: 10px; color: #ccc; }
-    .ec-tip { font-size: 11px; color: #bbb; margin-top: 7px; line-height: 1.5; }
+    .ec-tip { font-size: 10px; color: #bbb; margin-top: 6px; line-height: 1.5; }
 
-    /* ── 미리보기 ── */
+    /* ── 미리보기 패널 ── */
     .preview-panel {
-      width: 240px;
-      flex-shrink: 0;
+      flex: 1;
+      min-width: 0;
       position: sticky;
       top: 20px;
     }
@@ -360,8 +379,8 @@
     .preview-card {
       background: var(--surface);
       border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      padding: 28px 24px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -371,18 +390,26 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 14px;
+      margin-bottom: 20px;
       align-self: flex-start;
     }
 
-    /* 고정 크기 미리보기 컨테이너 */
+    /* 체커보드 배경 (투명 QR 구분용) */
+    .qr-stage-wrap {
+      background:
+        repeating-conic-gradient(#f0f0f0 0% 25%, #fff 0% 50%)
+        0 0 / 16px 16px;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
     #qr-stage {
-      width: 200px;
-      height: 200px;
+      width: 260px;
+      height: 260px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 14px;
       overflow: hidden;
       position: relative;
     }
@@ -391,27 +418,32 @@
       display: inline-block;
       line-height: 0;
       transform-origin: center center;
-      /* transform은 JS에서 동적으로 적용 */
     }
     #qr-inner canvas, #qr-inner img { display: block; }
 
+    .dl-area {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .filename-input {
       width: 100%;
-      padding: 9px 11px;
+      padding: 10px 12px;
       background: #f5f6fa;
       border: none;
       border-radius: 8px;
       color: var(--text);
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       outline: none;
-      margin-bottom: 9px;
     }
     .filename-input::placeholder { color: #bbb; }
 
     .dl-btn {
       width: 100%;
-      padding: 11px;
+      padding: 12px;
       background: var(--primary);
       color: #fff;
       border: none;
@@ -436,7 +468,7 @@
     <nav class="sidebar-nav">
       <div class="nav-section-label">메뉴</div>
       <a class="nav-item active" href="/app.html">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1.5"/>
           <rect x="14" y="3" width="7" height="7" rx="1.5"/>
           <rect x="3" y="14" width="7" height="7" rx="1.5"/>
@@ -453,7 +485,7 @@
         <div class="user-email" id="user-email">...</div>
       </div>
       <button class="btn-logout" onclick="logout()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
@@ -551,11 +583,15 @@
         <div class="preview-panel">
           <div class="preview-card">
             <div class="preview-title">미리보기</div>
-            <div id="qr-stage">
-              <div id="qr-inner"><div id="qr-code"></div></div>
+            <div class="qr-stage-wrap">
+              <div id="qr-stage">
+                <div id="qr-inner"><div id="qr-code"></div></div>
+              </div>
             </div>
-            <input class="filename-input" id="filename-input" type="text" placeholder="파일명 (기본: qrcode)" />
-            <button class="dl-btn" onclick="download()">이미지 저장 (PNG)</button>
+            <div class="dl-area">
+              <input class="filename-input" id="filename-input" type="text" placeholder="파일명 (기본: qrcode)" />
+              <button class="dl-btn" onclick="download()">이미지 저장 (PNG)</button>
+            </div>
           </div>
         </div>
 
@@ -564,9 +600,8 @@
   </div>
 
 <script>
-  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaGpmdHVxdHRpYW9qaW5wcHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjc5NDgsImV4cCI6MjA4OTkwMzk0OH0.j4nsoSLtbMG_7dCCyxszQxKWgLbstGAwiaGWjNnoeaU';
-  const STAGE_SIZE = 200; // 고정 미리보기 크기
-  const QR_SIZE    = 200;
+  const STAGE_SIZE = 260;
+  const QR_SIZE    = 260;
 
   // 인증 확인
   const saved = localStorage.getItem('sb_session');
@@ -681,7 +716,6 @@
         inner.style.borderRadius = state.borderStyle === 'rounded' ? '12px' : '0';
       }
 
-      // 미리보기 고정 크기: 실제 크기가 STAGE_SIZE보다 크면 축소
       const totalSize = QR_SIZE + pad * 2 + bw * 2;
       const scale = totalSize > STAGE_SIZE ? STAGE_SIZE / totalSize : 1;
       inner.style.transform = `scale(${scale})`;
