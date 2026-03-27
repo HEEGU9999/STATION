@@ -201,11 +201,12 @@
       display: flex;
       gap: 18px;
       align-items: flex-start;
+      max-width: 860px;
     }
 
-    /* 설정 패널: 고정 좁게 */
+    /* 설정 패널 */
     .panel {
-      flex: 0 0 270px;
+      flex: 0 0 340px;
       background: var(--surface);
       border-radius: 14px;
       padding: 20px;
@@ -344,10 +345,11 @@
     .ec-btn .desc { font-size: 10px; color: #ccc; }
     .ec-tip { font-size: 10px; color: #bbb; margin-top: 7px; line-height: 1.5; }
 
-    /* ── 미리보기: 나머지 공간 전부 ── */
+    /* ── 미리보기 ── */
     .preview-panel {
       flex: 1;
       min-width: 0;
+      max-width: 480px;
       position: sticky;
       top: 20px;
     }
