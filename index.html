@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HEEGU STATION</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -113,7 +112,8 @@
   </div>
 
   <script>
-    let supabase;
+    const SUPA_URL = 'https://blhjftuqttiaojinpptl.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaGpmdHVxdHRpYW9qaW5wcHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjc5NDgsImV4cCI6MjA4OTkwMzk0OH0.j4nsoSLtbMG_7dCCyxszQxKWgLbstGAwiaGWjNnoeaU';
 
     function showMsg(text) {
       const el = document.getElementById('msg');
@@ -121,19 +121,16 @@
       el.style.display = 'block';
     }
 
-    window.addEventListener('load', () => {
+    // 이미 로그인된 경우 바로 이동
+    const saved = localStorage.getItem('sb_session');
+    if (saved) {
       try {
-        supabase = window.supabase.createClient(
-          'https://blhjftuqttiaojinpptl.supabase.co',
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaGpmdHVxdHRpYW9qaW5wcHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjc5NDgsImV4cCI6MjA4OTkwMzk0OH0.j4nsoSLtbMG_7dCCyxszQxKWgLbstGAwiaGWjNnoeaU'
-        );
-        supabase.auth.getSession().then(({ data }) => {
-          if (data.session) location.href = '/app.html';
-        });
-      } catch(e) {
-        showMsg('초기화 오류: ' + e.message);
-      }
-    });
+        const s = JSON.parse(saved);
+        if (s.access_token && s.expires_at > Date.now() / 1000) {
+          location.href = '/app.html';
+        }
+      } catch(e) { localStorage.removeItem('sb_session'); }
+    }
 
     async function login() {
       const email = document.getElementById('email').value.trim();
@@ -141,21 +138,31 @@
       const btn   = document.getElementById('btn');
 
       if (!email || !pw) { showMsg('이메일과 비밀번호를 입력해주세요.'); return; }
-      if (!supabase)      { showMsg('로딩 중입니다. 잠시 후 다시 시도해주세요.'); return; }
 
       btn.disabled = true;
       btn.textContent = '로그인 중...';
       document.getElementById('msg').style.display = 'none';
 
       try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pw });
-        if (error) {
+        const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPA_KEY,
+          },
+          body: JSON.stringify({ email, password: pw }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
           showMsg('이메일 또는 비밀번호가 올바르지 않습니다.');
         } else {
+          localStorage.setItem('sb_session', JSON.stringify(data));
           location.href = '/app.html';
         }
       } catch(e) {
-        showMsg('오류가 발생했습니다: ' + e.message);
+        showMsg('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
       } finally {
         btn.disabled = false;
         btn.textContent = '로그인';
