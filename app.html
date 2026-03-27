@@ -778,6 +778,7 @@
 
   function resetAndRegen() {
     clearShortUrl();
+    document.getElementById('url-input').value = 'https://example.com';
     // state 리셋
     Object.assign(state, DEFAULTS);
 
