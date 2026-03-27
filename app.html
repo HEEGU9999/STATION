@@ -414,8 +414,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow: visible;
       position: relative;
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
     }
 
     #qr-inner {
@@ -902,10 +904,14 @@
     copyBtn.style.display = 'none';
 
     try {
-      const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(url)}`);
-      const text = await res.text();
-      if (!res.ok || text.startsWith('Error:')) throw new Error(text);
-      shortUrl = text.trim();
+      const res = await fetch('https://cleanuri.com/api/v1/shorten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `url=${encodeURIComponent(url)}`
+      });
+      const data = await res.json();
+      if (!res.ok || !data.result_url) throw new Error();
+      shortUrl = data.result_url;
       result.textContent = shortUrl;
       result.style.color = '';
       copyBtn.style.display = 'block';
