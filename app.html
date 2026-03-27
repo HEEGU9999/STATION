@@ -196,20 +196,19 @@
       margin-bottom: 18px;
     }
 
-    /* ── QR 레이아웃: 설정 넓게, 미리보기 적당히 ── */
+    /* ── QR 레이아웃 ── */
     .qr-layout {
       display: flex;
       gap: 18px;
       align-items: flex-start;
     }
 
-    /* 설정 패널 */
+    /* 설정 패널: 고정 좁게 */
     .panel {
-      flex: 1;
-      min-width: 0;
+      flex: 0 0 270px;
       background: var(--surface);
       border-radius: 14px;
-      padding: 22px 24px;
+      padding: 20px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
@@ -345,9 +344,10 @@
     .ec-btn .desc { font-size: 10px; color: #ccc; }
     .ec-tip { font-size: 10px; color: #bbb; margin-top: 7px; line-height: 1.5; }
 
-    /* ── 미리보기: 고정 폭 ── */
+    /* ── 미리보기: 나머지 공간 전부 ── */
     .preview-panel {
-      flex: 0 0 300px;
+      flex: 1;
+      min-width: 0;
       position: sticky;
       top: 20px;
     }
@@ -355,7 +355,7 @@
     .preview-card {
       background: var(--surface);
       border-radius: 14px;
-      padding: 22px 20px 20px;
+      padding: 24px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
@@ -366,22 +366,21 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       align-self: flex-start;
     }
 
     .qr-stage-wrap {
-      background:
-        repeating-conic-gradient(#efefef 0% 25%, #fff 0% 50%)
-        0 0 / 14px 14px;
-      border-radius: 10px;
-      padding: 8px;
-      margin-bottom: 16px;
+      background: #f9f9f9;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 20px;
     }
 
     #qr-stage {
-      width: 220px;
-      height: 220px;
+      width: 300px;
+      height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -486,7 +485,7 @@
           <div class="sec-label">링크</div>
           <div class="url-row">
             <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
-            <button class="regen-inline" onclick="resetAndRegen()">재생성</button>
+            <button class="regen-inline" onclick="resetAndRegen()">초기화</button>
           </div>
 
           <div class="divider"></div>
@@ -570,8 +569,8 @@
   </div>
 
 <script>
-  const STAGE_SIZE = 220;
-  const QR_SIZE    = 220;
+  const STAGE_SIZE = 300;
+  const QR_SIZE    = 300;
 
   const DEFAULTS = {
     fg: '#000000', bg: '#ffffff', borderColor: '#000000',
