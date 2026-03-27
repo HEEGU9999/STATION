@@ -201,12 +201,12 @@
       display: flex;
       gap: 18px;
       align-items: flex-start;
-      max-width: 860px;
+      max-width: 1200px;
     }
 
     /* 설정 패널 */
     .panel {
-      flex: 0 0 340px;
+      flex: 0 0 640px;
       background: var(--surface);
       border-radius: 14px;
       padding: 20px;
@@ -218,13 +218,13 @@
     input.url-input {
       flex: 1;
       min-width: 0;
-      padding: 10px 13px;
+      padding: 12px 15px;
       background: #f5f6fa;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       color: var(--text);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 15px;
       outline: none;
       transition: background 0.2s;
     }
@@ -232,13 +232,13 @@
     input.url-input::placeholder { color: #bbb; }
 
     .regen-inline {
-      padding: 10px 16px;
+      padding: 12px 20px;
       background: var(--primary);
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       font-family: inherit;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
@@ -249,26 +249,26 @@
     .divider { height: 1px; background: #f3f4f6; margin: 14px 0; }
 
     .sec-label {
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
       color: #9ca3af;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .field-label {
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--label);
-      margin-bottom: 7px;
+      margin-bottom: 9px;
     }
 
-    .palette-row { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; }
+    .palette-row { display: flex; gap: 7px; align-items: center; flex-wrap: nowrap; }
 
     .swatch {
-      width: 18px; height: 18px;
-      border-radius: 4px;
+      width: 28px; height: 28px;
+      border-radius: 6px;
       cursor: pointer;
       border: 2px solid transparent;
       transition: transform 0.12s, border-color 0.12s;
@@ -280,15 +280,15 @@
     .swatch[data-color="#ffffff"].selected { border-color: var(--primary); }
 
     .plus-btn {
-      width: 18px; height: 18px;
-      border-radius: 4px;
+      width: 28px; height: 28px;
+      border-radius: 6px;
       border: 1.5px dashed #ccc;
       background: transparent;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 14px;
       color: #bbb;
       position: relative;
       flex-shrink: 0;
@@ -300,38 +300,38 @@
       opacity: 0; cursor: pointer; top: 0; left: 0; border: none; padding: 0;
     }
 
-    .color-section { display: flex; flex-direction: column; gap: 10px; }
+    .color-section { display: flex; flex-direction: column; gap: 14px; }
 
-    .bstyle-row { display: flex; gap: 6px; margin-bottom: 12px; }
+    .bstyle-row { display: flex; gap: 10px; margin-bottom: 16px; }
     .bstyle-btn {
       flex: 1;
-      padding: 8px 4px 6px;
+      padding: 12px 4px 10px;
       border: 1.5px solid var(--border);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--surface);
       cursor: pointer;
       font-family: inherit;
-      font-size: 10px;
+      font-size: 13px;
       color: #aaa;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       transition: all 0.15s;
     }
     .bstyle-btn:hover { border-color: #ccc; }
     .bstyle-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
-    .bstyle-btn svg { width: 22px; height: 22px; }
+    .bstyle-btn svg { width: 32px; height: 32px; }
 
-    .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
-    .slider-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; }
+    .slider-val { font-size: 13px; font-weight: 700; color: var(--muted); min-width: 36px; text-align: right; }
 
-    .ec-row { display: flex; gap: 6px; }
+    .ec-row { display: flex; gap: 8px; }
     .ec-btn {
-      flex: 1; padding: 7px 4px;
+      flex: 1; padding: 11px 4px;
       border: 1.5px solid var(--border);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--surface);
       cursor: pointer;
       font-family: inherit;
@@ -340,10 +340,10 @@
     }
     .ec-btn:hover { border-color: #ccc; }
     .ec-btn.active { border-color: var(--primary); background: var(--primary-light); }
-    .ec-btn .lv { font-size: 13px; font-weight: 800; color: #aaa; display: block; }
+    .ec-btn .lv { font-size: 16px; font-weight: 800; color: #aaa; display: block; }
     .ec-btn.active .lv { color: var(--primary); }
-    .ec-btn .desc { font-size: 10px; color: #ccc; }
-    .ec-tip { font-size: 10px; color: #bbb; margin-top: 7px; line-height: 1.5; }
+    .ec-btn .desc { font-size: 12px; color: #ccc; }
+    .ec-tip { font-size: 12px; color: #bbb; margin-top: 9px; line-height: 1.5; }
 
     /* ── 미리보기 ── */
     .preview-panel {
