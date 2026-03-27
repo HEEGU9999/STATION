@@ -20,14 +20,13 @@
       --muted: #6b7280;
       --label: #374151;
 
-      /* 사이드바 전용 */
       --sb-bg: #0f172a;
       --sb-hover: #1e293b;
       --sb-active: #073763;
       --sb-text: #94a3b8;
       --sb-text-active: #fff;
       --sb-border: #1e293b;
-      --sb-section: #475569;
+      --sb-section: #64748b;
     }
 
     body {
@@ -38,9 +37,9 @@
       overflow-x: hidden;
     }
 
-    /* ── 사이드바 (사방넷 스타일) ── */
+    /* ── 사이드바 ── */
     .sidebar {
-      width: 220px;
+      width: 210px;
       flex-shrink: 0;
       background: var(--sb-bg);
       display: flex;
@@ -51,18 +50,15 @@
     }
 
     .sidebar-logo {
-      padding: 20px 18px 16px;
+      padding: 18px 16px 15px;
       border-bottom: 1px solid var(--sb-border);
       display: flex;
       align-items: center;
-      gap: 10px;
     }
 
     .sidebar-logo img {
-      height: 28px;
+      height: 30px;
       object-fit: contain;
-      filter: brightness(0) invert(1);
-      opacity: 0.9;
     }
 
     .sidebar-nav {
@@ -77,14 +73,7 @@
       color: var(--sb-section);
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 8px 10px 6px;
-      margin-top: 4px;
-    }
-
-    .nav-divider {
-      height: 1px;
-      background: var(--sb-border);
-      margin: 8px 10px;
+      padding: 6px 10px 8px;
     }
 
     .nav-item {
@@ -108,16 +97,16 @@
       letter-spacing: -0.01em;
     }
     .nav-item:hover { background: var(--sb-hover); color: var(--sb-text-active); }
-    .nav-item.active { background: var(--sb-active); color: var(--sb-text-active); font-weight: 700; }
+    .nav-item.active { background: var(--sb-active); color: #fff; font-weight: 700; }
     .nav-item.active .nav-icon { color: #fff; opacity: 1; }
 
     .nav-icon {
       width: 15px; height: 15px;
       flex-shrink: 0;
-      opacity: 0.6;
+      opacity: 0.55;
       transition: opacity 0.15s;
     }
-    .nav-item:hover .nav-icon { opacity: 0.9; }
+    .nav-item:hover .nav-icon { opacity: 0.85; }
 
     .sidebar-bottom {
       padding: 12px 10px;
@@ -148,7 +137,7 @@
 
     .user-email {
       font-size: 11px;
-      color: var(--sb-section);
+      color: #cbd5e1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -163,7 +152,7 @@
       font-family: inherit;
       font-size: 12px;
       font-weight: 500;
-      color: var(--sb-section);
+      color: #94a3b8;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -188,13 +177,9 @@
       display: flex;
       align-items: center;
       flex-shrink: 0;
-      gap: 8px;
     }
 
-    .page-breadcrumb {
-      font-size: 13px;
-      color: #9ca3af;
-    }
+    .page-breadcrumb { font-size: 13px; color: #9ca3af; }
     .page-breadcrumb span { color: var(--text); font-weight: 700; }
 
     .content {
@@ -211,28 +196,24 @@
       margin-bottom: 18px;
     }
 
-    /* ── QR 레이아웃 ── */
+    /* ── QR 레이아웃: 설정 넓게, 미리보기 적당히 ── */
     .qr-layout {
       display: flex;
       gap: 18px;
       align-items: flex-start;
     }
 
-    /* 설정 패널: 고정 폭 */
+    /* 설정 패널 */
     .panel {
-      width: 340px;
-      flex-shrink: 0;
+      flex: 1;
+      min-width: 0;
       background: var(--surface);
       border-radius: 14px;
-      padding: 22px;
+      padding: 22px 24px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
-    /* URL 입력 행 */
-    .url-row {
-      display: flex;
-      gap: 8px;
-    }
+    .url-row { display: flex; gap: 8px; }
 
     input.url-input {
       flex: 1;
@@ -251,7 +232,7 @@
     input.url-input::placeholder { color: #bbb; }
 
     .regen-inline {
-      padding: 10px 14px;
+      padding: 10px 16px;
       background: var(--primary);
       color: #fff;
       border: none;
@@ -283,24 +264,23 @@
       margin-bottom: 7px;
     }
 
-    /* 팔레트 */
-    .palette-row { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+    .palette-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 
     .swatch {
-      width: 20px; height: 20px;
+      width: 22px; height: 22px;
       border-radius: 5px;
       cursor: pointer;
       border: 2px solid transparent;
       transition: transform 0.12s, border-color 0.12s;
       flex-shrink: 0;
     }
-    .swatch:hover { transform: scale(1.2); }
+    .swatch:hover { transform: scale(1.15); }
     .swatch.selected { border-color: var(--primary); transform: scale(1.15); }
     .swatch[data-color="#ffffff"] { border-color: #ddd; }
     .swatch[data-color="#ffffff"].selected { border-color: var(--primary); }
 
     .plus-btn {
-      width: 20px; height: 20px;
+      width: 22px; height: 22px;
       border-radius: 5px;
       border: 1.5px dashed #ccc;
       background: transparent;
@@ -308,7 +288,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 13px;
       color: #bbb;
       position: relative;
       transition: border-color 0.15s;
@@ -319,14 +299,13 @@
       opacity: 0; cursor: pointer; top: 0; left: 0; border: none; padding: 0;
     }
 
-    .two-col { display: flex; gap: 16px; }
+    .two-col { display: flex; gap: 20px; }
     .two-col > .col { flex: 1; min-width: 0; }
 
-    /* 테두리 */
-    .bstyle-row { display: flex; gap: 5px; margin-bottom: 12px; }
+    .bstyle-row { display: flex; gap: 6px; margin-bottom: 12px; }
     .bstyle-btn {
       flex: 1;
-      padding: 7px 4px 5px;
+      padding: 8px 4px 6px;
       border: 1.5px solid var(--border);
       border-radius: 8px;
       background: var(--surface);
@@ -337,20 +316,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       transition: all 0.15s;
     }
     .bstyle-btn:hover { border-color: #ccc; }
     .bstyle-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
     .bstyle-btn svg { width: 22px; height: 22px; }
 
-    /* 슬라이더 */
     .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; height: 4px; }
-    .slider-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 28px; text-align: right; }
+    input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
+    .slider-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; }
 
-    /* 오류 정정 */
-    .ec-row { display: flex; gap: 5px; }
+    .ec-row { display: flex; gap: 6px; }
     .ec-btn {
       flex: 1; padding: 7px 4px;
       border: 1.5px solid var(--border);
@@ -363,15 +340,14 @@
     }
     .ec-btn:hover { border-color: #ccc; }
     .ec-btn.active { border-color: var(--primary); background: var(--primary-light); }
-    .ec-btn .lv { font-size: 12px; font-weight: 800; color: #aaa; display: block; }
+    .ec-btn .lv { font-size: 13px; font-weight: 800; color: #aaa; display: block; }
     .ec-btn.active .lv { color: var(--primary); }
     .ec-btn .desc { font-size: 10px; color: #ccc; }
-    .ec-tip { font-size: 10px; color: #bbb; margin-top: 6px; line-height: 1.5; }
+    .ec-tip { font-size: 10px; color: #bbb; margin-top: 7px; line-height: 1.5; }
 
-    /* ── 미리보기 패널 ── */
+    /* ── 미리보기: 고정 폭 ── */
     .preview-panel {
-      flex: 1;
-      min-width: 0;
+      flex: 0 0 300px;
       position: sticky;
       top: 20px;
     }
@@ -379,7 +355,7 @@
     .preview-card {
       background: var(--surface);
       border-radius: 14px;
-      padding: 28px 24px 24px;
+      padding: 22px 20px 20px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
@@ -390,23 +366,22 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       align-self: flex-start;
     }
 
-    /* 체커보드 배경 (투명 QR 구분용) */
     .qr-stage-wrap {
       background:
-        repeating-conic-gradient(#f0f0f0 0% 25%, #fff 0% 50%)
-        0 0 / 16px 16px;
+        repeating-conic-gradient(#efefef 0% 25%, #fff 0% 50%)
+        0 0 / 14px 14px;
       border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 20px;
+      padding: 8px;
+      margin-bottom: 16px;
     }
 
     #qr-stage {
-      width: 260px;
-      height: 260px;
+      width: 220px;
+      height: 220px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -430,20 +405,20 @@
 
     .filename-input {
       width: 100%;
-      padding: 10px 12px;
+      padding: 9px 12px;
       background: #f5f6fa;
       border: none;
       border-radius: 8px;
       color: var(--text);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 12px;
       outline: none;
     }
     .filename-input::placeholder { color: #bbb; }
 
     .dl-btn {
       width: 100%;
-      padding: 12px;
+      padding: 11px;
       background: var(--primary);
       color: #fff;
       border: none;
@@ -476,7 +451,6 @@
         </svg>
         QR 코드 생성기
       </a>
-      <!-- 추후 메뉴 추가 -->
     </nav>
 
     <div class="sidebar-bottom">
@@ -509,16 +483,14 @@
         <!-- 설정 패널 -->
         <div class="panel">
 
-          <!-- URL + 재생성 -->
           <div class="sec-label">링크</div>
           <div class="url-row">
             <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
-            <button class="regen-inline" onclick="liveUpdate()">재생성</button>
+            <button class="regen-inline" onclick="resetAndRegen()">재생성</button>
           </div>
 
           <div class="divider"></div>
 
-          <!-- 색상 -->
           <div class="sec-label">색상</div>
           <div class="two-col">
             <div class="col">
@@ -533,7 +505,6 @@
 
           <div class="divider"></div>
 
-          <!-- 테두리 -->
           <div class="sec-label">테두리</div>
           <div class="field-label" style="margin-bottom:8px">스타일</div>
           <div class="bstyle-row">
@@ -568,7 +539,6 @@
 
           <div class="divider"></div>
 
-          <!-- 오류 정정 -->
           <div class="sec-label">오류 정정 레벨</div>
           <div class="ec-row">
             <button class="ec-btn" onclick="setEC('L',this)"><span class="lv">L</span><span class="desc">7%</span></button>
@@ -600,8 +570,14 @@
   </div>
 
 <script>
-  const STAGE_SIZE = 260;
-  const QR_SIZE    = 260;
+  const STAGE_SIZE = 220;
+  const QR_SIZE    = 220;
+
+  const DEFAULTS = {
+    fg: '#000000', bg: '#ffffff', borderColor: '#000000',
+    borderStyle: 'none', ec: 'H',
+    borderWidth: 4, padding: 10
+  };
 
   // 인증 확인
   const saved = localStorage.getItem('sb_session');
@@ -620,12 +596,9 @@
     } catch(e) { localStorage.removeItem('sb_session'); location.href = '/'; }
   }
 
-  function logout() {
-    localStorage.removeItem('sb_session');
-    location.href = '/';
-  }
+  function logout() { localStorage.removeItem('sb_session'); location.href = '/'; }
 
-  const state = { fg: '#000000', bg: '#ffffff', borderColor: '#000000', borderStyle: 'none', ec: 'H' };
+  const state = { ...DEFAULTS };
   const RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
 
   function buildPalette(containerId, defaultColor, onPick) {
@@ -664,9 +637,9 @@
     wrap.appendChild(plusBtn);
   }
 
-  buildPalette('fg-palette',     '#000000', c => state.fg = c);
-  buildPalette('bg-palette',     '#ffffff', c => state.bg = c);
-  buildPalette('border-palette', '#000000', c => state.borderColor = c);
+  buildPalette('fg-palette',     DEFAULTS.fg,          c => state.fg = c);
+  buildPalette('bg-palette',     DEFAULTS.bg,          c => state.bg = c);
+  buildPalette('border-palette', DEFAULTS.borderColor, c => state.borderColor = c);
 
   function onSlider(id, valId) {
     document.getElementById(valId).textContent = document.getElementById(id).value + 'px';
@@ -682,6 +655,38 @@
     document.querySelectorAll('.ec-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     liveUpdate();
+  }
+
+  /* 재생성: 모든 설정을 초기값으로 리셋 후 재생성 */
+  function resetAndRegen() {
+    // state 리셋
+    Object.assign(state, DEFAULTS);
+
+    // 슬라이더 리셋
+    document.getElementById('border-width').value = DEFAULTS.borderWidth;
+    document.getElementById('padding').value = DEFAULTS.padding;
+    document.getElementById('bw-val').textContent = DEFAULTS.borderWidth + 'px';
+    document.getElementById('pad-val').textContent = DEFAULTS.padding + 'px';
+
+    // 테두리 스타일 버튼 리셋 (첫 번째 = '없음')
+    document.querySelectorAll('.bstyle-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+
+    // EC 버튼 리셋 (마지막 = 'H')
+    const ecBtns = document.querySelectorAll('.ec-btn');
+    ecBtns.forEach((b, i) => b.classList.toggle('active', i === ecBtns.length - 1));
+
+    // 팔레트 선택 리셋
+    resetPaletteSelection('fg-palette',     DEFAULTS.fg);
+    resetPaletteSelection('bg-palette',     DEFAULTS.bg);
+    resetPaletteSelection('border-palette', DEFAULTS.borderColor);
+
+    liveUpdate();
+  }
+
+  function resetPaletteSelection(containerId, defaultColor) {
+    document.getElementById(containerId).querySelectorAll('.swatch').forEach(s => {
+      s.classList.toggle('selected', s.dataset.color === defaultColor);
+    });
   }
 
   let renderTimer = null;
