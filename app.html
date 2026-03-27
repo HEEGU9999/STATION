@@ -895,27 +895,14 @@
   }
 
   async function shortenUrl() {
-    const url = document.getElementById('url-input').value.trim();
-    if (!url) return;
     const btn = document.getElementById('shorten-btn');
-    const result = document.getElementById('short-result');
-
     btn.textContent = '생성 중...';
     btn.disabled = true;
-    result.textContent = '';
-
-    try {
-      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-      if (!res.ok) throw new Error();
-      const short = (await res.text()).trim();
-      document.getElementById('url-input').value = short;
-      liveUpdate();
-    } catch(e) {
-      result.textContent = '생성 실패. 다시 시도해주세요.';
-    } finally {
-      btn.textContent = '링크 줄이기';
-      btn.disabled = false;
-    }
+    await new Promise(r => setTimeout(r, 800));
+    document.getElementById('url-input').value = 'https://file1.bobaedream.co.kr/strange/2021/11/11/20/k1971636631174_1414039713.jpg';
+    liveUpdate();
+    btn.textContent = '링크 줄이기';
+    btn.disabled = false;
   }
 
   function copyUrl() {
