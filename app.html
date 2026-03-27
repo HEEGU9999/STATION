@@ -709,6 +709,7 @@
     document.getElementById('sidebar-overlay').classList.toggle('open');
   }
 
+  let shortUrl = '';
   const state = { ...DEFAULTS };
   const RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
 
@@ -888,8 +889,6 @@
     else if (img) drawImg(img.src);
   }
 
-  let shortUrl = '';
-
   async function shortenUrl() {
     const url = document.getElementById('url-input').value.trim();
     if (!url) return;
@@ -904,9 +903,11 @@
 
     try {
       const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(url)}`);
-      if (!res.ok) throw new Error();
-      shortUrl = await res.text();
+      const text = await res.text();
+      if (!res.ok || text.startsWith('Error:')) throw new Error(text);
+      shortUrl = text.trim();
       result.textContent = shortUrl;
+      result.style.color = '';
       copyBtn.style.display = 'block';
     } catch(e) {
       result.textContent = '생성 실패. 다시 시도해주세요.';
