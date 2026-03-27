@@ -589,6 +589,11 @@
             <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
             <button class="regen-inline" onclick="resetAndRegen()">초기화</button>
           </div>
+          <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+            <button class="regen-inline" id="shorten-btn" onclick="shortenUrl()" style="background:#1e293b;">링크 줄이기</button>
+            <span id="short-result" style="font-size:12px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+            <button id="copy-btn" onclick="copyShort()" style="display:none; padding:8px 12px; background:var(--primary-light); color:var(--primary); border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;">복사</button>
+          </div>
 
           <div class="divider"></div>
 
@@ -873,6 +878,43 @@
 
     if (canvas) drawImg(canvas.toDataURL('image/png'));
     else if (img) drawImg(img.src);
+  }
+
+  let shortUrl = '';
+
+  async function shortenUrl() {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) return;
+    const btn = document.getElementById('shorten-btn');
+    const result = document.getElementById('short-result');
+    const copyBtn = document.getElementById('copy-btn');
+
+    btn.textContent = '생성 중...';
+    btn.disabled = true;
+    result.textContent = '';
+    copyBtn.style.display = 'none';
+
+    try {
+      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error();
+      shortUrl = await res.text();
+      result.textContent = shortUrl;
+      copyBtn.style.display = 'block';
+    } catch(e) {
+      result.textContent = '생성 실패. 다시 시도해주세요.';
+      result.style.color = '#e53e3e';
+    } finally {
+      btn.textContent = '링크 줄이기';
+      btn.disabled = false;
+    }
+  }
+
+  function copyShort() {
+    navigator.clipboard.writeText(shortUrl).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '복사됨!';
+      setTimeout(() => btn.textContent = '복사', 1500);
+    });
   }
 
   document.getElementById('url-input').addEventListener('input', liveUpdate);
