@@ -590,7 +590,7 @@
             <button class="regen-inline" onclick="resetAndRegen()">초기화</button>
           </div>
           <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-            <button class="regen-inline" id="shorten-btn" onclick="shortenUrl()" style="background:#1e293b;">링크 줄이기</button>
+            <button class="regen-inline" id="shorten-btn" onclick="shortenUrl()">링크 줄이기</button>
             <span id="short-result" style="font-size:12px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
             <button id="copy-btn" onclick="copyShort()" style="display:none; padding:8px 12px; background:var(--primary-light); color:var(--primary); border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;">복사</button>
           </div>
@@ -769,7 +769,15 @@
   }
 
   /* 재생성: 모든 설정을 초기값으로 리셋 후 재생성 */
+  function clearShortUrl() {
+    shortUrl = '';
+    document.getElementById('short-result').textContent = '';
+    document.getElementById('short-result').style.color = '';
+    document.getElementById('copy-btn').style.display = 'none';
+  }
+
   function resetAndRegen() {
+    clearShortUrl();
     // state 리셋
     Object.assign(state, DEFAULTS);
 
@@ -895,7 +903,7 @@
     copyBtn.style.display = 'none';
 
     try {
-      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+      const res = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(url)}`);
       if (!res.ok) throw new Error();
       shortUrl = await res.text();
       result.textContent = shortUrl;
