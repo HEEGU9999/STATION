@@ -9,42 +9,56 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --primary: #073763;
+      --primary-hover: #052a4a;
+      --primary-light: #e8eef6;
+      --primary-text: #073763;
+      --border: #e8e8e8;
+      --bg: #f4f5f7;
+      --surface: #fff;
+      --text: #111;
+      --muted: #888;
+      --label: #555;
+    }
+
     body {
       font-family: 'Pretendard', sans-serif;
-      background: #f4f5f7;
+      background: var(--bg);
       min-height: 100vh;
       display: flex;
+      overflow-x: hidden;
     }
 
     /* ── 사이드바 ── */
     .sidebar {
-      width: 220px;
+      width: 210px;
       flex-shrink: 0;
-      background: #fff;
-      border-right: 1px solid #e8e8e8;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       height: 100vh;
       position: sticky;
       top: 0;
-      overflow-y: auto;
     }
 
     .sidebar-logo {
-      padding: 20px 18px 16px;
+      padding: 18px 16px 14px;
       border-bottom: 1px solid #f0f0f0;
       display: flex;
       justify-content: center;
     }
 
     .sidebar-logo img {
-      height: 28px;
+      height: 26px;
       object-fit: contain;
     }
 
     .sidebar-nav {
       flex: 1;
-      padding: 12px 10px;
+      padding: 10px 8px;
+      overflow-y: auto;
     }
 
     .nav-section-label {
@@ -53,17 +67,17 @@
       color: #bbb;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 12px 10px 6px;
+      padding: 10px 10px 6px;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       padding: 9px 12px;
-      border-radius: 9px;
+      border-radius: 8px;
       text-decoration: none;
-      color: #555;
+      color: var(--muted);
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -75,66 +89,62 @@
       text-align: left;
       font-family: inherit;
     }
-    .nav-item:hover { background: #f4f5f7; color: #111; }
-    .nav-item.active { background: #f0f1ff; color: #4f46e5; }
-    .nav-item.active .nav-icon { color: #4f46e5; }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active { background: var(--primary-light); color: var(--primary-text); }
+    .nav-item.active .nav-icon { color: var(--primary-text); }
 
     .nav-icon {
-      width: 18px;
-      height: 18px;
-      color: #aaa;
+      width: 16px; height: 16px;
+      color: #bbb;
       flex-shrink: 0;
       transition: color 0.15s;
     }
-    .nav-item:hover .nav-icon { color: #555; }
+    .nav-item:hover .nav-icon { color: var(--muted); }
 
     .sidebar-bottom {
-      padding: 14px 10px;
+      padding: 12px 8px;
       border-top: 1px solid #f0f0f0;
     }
 
     .user-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       padding: 8px 12px;
-      border-radius: 9px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .user-avatar {
-      width: 30px;
-      height: 30px;
+      width: 28px; height: 28px;
       border-radius: 50%;
-      background: #e8e8e8;
+      background: var(--primary-light);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: #555;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary-text);
       flex-shrink: 0;
     }
 
     .user-email {
-      font-size: 12px;
-      color: #888;
+      font-size: 11px;
+      color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 130px;
     }
 
     .btn-logout {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
-      border-radius: 9px;
+      gap: 9px;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-family: inherit;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      color: #aaa;
+      color: #bbb;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -146,57 +156,97 @@
     /* ── 메인 ── */
     .main {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
-      overflow: auto;
+      overflow: hidden;
     }
 
     .topbar {
-      background: #fff;
-      border-bottom: 1px solid #e8e8e8;
-      padding: 0 32px;
-      height: 54px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 50px;
       display: flex;
       align-items: center;
+      flex-shrink: 0;
     }
 
     .page-breadcrumb {
-      font-size: 14px;
+      font-size: 13px;
       color: #bbb;
     }
-
-    .page-breadcrumb span {
-      color: #111;
-      font-weight: 700;
-    }
+    .page-breadcrumb span { color: var(--text); font-weight: 700; }
 
     .content {
-      padding: 28px 32px;
+      padding: 24px 28px;
+      overflow-y: auto;
       flex: 1;
     }
 
     .page-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
-      color: #111;
+      color: var(--text);
       letter-spacing: -0.02em;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     /* ── QR 레이아웃 ── */
     .qr-layout {
       display: flex;
-      gap: 20px;
+      gap: 18px;
       align-items: flex-start;
     }
 
     .panel {
       flex: 1;
-      background: #fff;
+      min-width: 0;
+      background: var(--surface);
       border-radius: 14px;
-      padding: 24px;
+      padding: 22px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.05);
     }
+
+    /* URL 입력 행 */
+    .url-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 0;
+    }
+
+    input.url-input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 13px;
+      background: #f5f6fa;
+      border: none;
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: background 0.2s;
+    }
+    input.url-input:focus { background: #eeeff5; }
+    input.url-input::placeholder { color: #bbb; }
+
+    .regen-inline {
+      padding: 10px 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .regen-inline:hover { background: var(--primary-hover); }
+
+    .divider { height: 1px; background: #f4f5f7; margin: 16px 0; }
 
     .sec-label {
       font-size: 10px;
@@ -208,54 +258,38 @@
     }
 
     .field-label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      color: #555;
+      color: var(--label);
       margin-bottom: 7px;
     }
 
-    input.url-input {
-      width: 100%;
-      padding: 11px 13px;
-      background: #f5f6fa;
-      border: none;
-      border-radius: 9px;
-      color: #111;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-      transition: background 0.2s;
-    }
-    input.url-input:focus { background: #eeeff5; }
-    input.url-input::placeholder { color: #bbb; }
-
-    .divider { height: 1px; background: #f4f5f7; margin: 18px 0; }
-
     /* 팔레트 */
-    .palette-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .palette-row { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
 
     .swatch {
-      width: 24px; height: 24px;
-      border-radius: 6px;
+      width: 22px; height: 22px;
+      border-radius: 5px;
       cursor: pointer;
       border: 2px solid transparent;
       transition: transform 0.12s, border-color 0.12s;
+      flex-shrink: 0;
     }
-    .swatch:hover { transform: scale(1.15); }
-    .swatch.selected { border-color: #4f46e5; transform: scale(1.15); }
+    .swatch:hover { transform: scale(1.2); }
+    .swatch.selected { border-color: var(--primary); transform: scale(1.2); }
     .swatch[data-color="#ffffff"] { border-color: #ddd; }
-    .swatch[data-color="#ffffff"].selected { border-color: #4f46e5; }
+    .swatch[data-color="#ffffff"].selected { border-color: var(--primary); }
 
     .plus-btn {
-      width: 24px; height: 24px;
-      border-radius: 6px;
+      width: 22px; height: 22px;
+      border-radius: 5px;
       border: 1.5px dashed #ccc;
       background: transparent;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 13px;
       color: #bbb;
       position: relative;
       transition: border-color 0.15s;
@@ -266,16 +300,17 @@
       opacity: 0; cursor: pointer; top: 0; left: 0; border: none; padding: 0;
     }
 
-    .two-col { display: flex; gap: 16px; }
-    .two-col > .col { flex: 1; }
+    .two-col { display: flex; gap: 20px; }
+    .two-col > .col { flex: 1; min-width: 0; }
 
+    /* 테두리 */
     .bstyle-row { display: flex; gap: 6px; margin-bottom: 14px; }
     .bstyle-btn {
       flex: 1;
-      padding: 7px 4px 5px;
-      border: 1.5px solid #e8e8e8;
+      padding: 8px 4px 6px;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
-      background: #fff;
+      background: var(--surface);
       cursor: pointer;
       font-family: inherit;
       font-size: 10px;
@@ -283,63 +318,49 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       transition: all 0.15s;
     }
     .bstyle-btn:hover { border-color: #ccc; }
-    .bstyle-btn.active { border-color: #4f46e5; background: #f0f1ff; color: #4f46e5; font-weight: 700; }
+    .bstyle-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-text); font-weight: 700; }
     .bstyle-btn svg { width: 24px; height: 24px; }
 
+    /* 슬라이더 */
     .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    input[type="range"] { flex: 1; accent-color: #4f46e5; cursor: pointer; }
-    .slider-val { font-size: 12px; font-weight: 600; color: #aaa; min-width: 30px; text-align: right; }
+    input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
+    .slider-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; }
 
+    /* 오류 정정 */
     .ec-row { display: flex; gap: 6px; }
     .ec-btn {
       flex: 1; padding: 7px 4px;
-      border: 1.5px solid #e8e8e8;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
-      background: #fff;
+      background: var(--surface);
       cursor: pointer;
       font-family: inherit;
       text-align: center;
       transition: all 0.15s;
     }
     .ec-btn:hover { border-color: #ccc; }
-    .ec-btn.active { border-color: #4f46e5; background: #f0f1ff; }
+    .ec-btn.active { border-color: var(--primary); background: var(--primary-light); }
     .ec-btn .lv { font-size: 13px; font-weight: 800; color: #aaa; display: block; }
-    .ec-btn.active .lv { color: #4f46e5; }
+    .ec-btn.active .lv { color: var(--primary-text); }
     .ec-btn .desc { font-size: 10px; color: #ccc; }
     .ec-tip { font-size: 11px; color: #bbb; margin-top: 7px; line-height: 1.5; }
 
-    .regen-btn {
-      width: 100%;
-      padding: 11px;
-      background: #4f46e5;
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 6px;
-      transition: background 0.2s;
-    }
-    .regen-btn:hover { background: #3730a3; }
-
-    /* 미리보기 */
+    /* ── 미리보기 ── */
     .preview-panel {
-      width: 250px;
+      width: 240px;
       flex-shrink: 0;
       position: sticky;
       top: 20px;
     }
 
     .preview-card {
-      background: #fff;
+      background: var(--surface);
       border-radius: 14px;
-      padding: 22px;
+      padding: 20px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.05);
       display: flex;
       flex-direction: column;
@@ -349,21 +370,29 @@
     .preview-title {
       font-size: 13px;
       font-weight: 700;
-      color: #111;
-      margin-bottom: 16px;
+      color: var(--text);
+      margin-bottom: 14px;
       align-self: flex-start;
     }
 
+    /* 고정 크기 미리보기 컨테이너 */
     #qr-stage {
-      width: 100%;
+      width: 200px;
+      height: 200px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 14px;
-      min-height: 150px;
+      overflow: hidden;
+      position: relative;
     }
 
-    #qr-inner { display: inline-block; line-height: 0; }
+    #qr-inner {
+      display: inline-block;
+      line-height: 0;
+      transform-origin: center center;
+      /* transform은 JS에서 동적으로 적용 */
+    }
     #qr-inner canvas, #qr-inner img { display: block; }
 
     .filename-input {
@@ -372,9 +401,9 @@
       background: #f5f6fa;
       border: none;
       border-radius: 8px;
-      color: #111;
+      color: var(--text);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 12px;
       outline: none;
       margin-bottom: 9px;
     }
@@ -383,7 +412,7 @@
     .dl-btn {
       width: 100%;
       padding: 11px;
-      background: #4f46e5;
+      background: var(--primary);
       color: #fff;
       border: none;
       border-radius: 9px;
@@ -393,7 +422,7 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .dl-btn:hover { background: #3730a3; }
+    .dl-btn:hover { background: var(--primary-hover); }
   </style>
 </head>
 <body>
@@ -406,7 +435,6 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">메뉴</div>
-
       <a class="nav-item active" href="/app.html">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <rect x="3" y="3" width="7" height="7" rx="1.5"/>
@@ -416,9 +444,7 @@
         </svg>
         QR 코드 생성기
       </a>
-
-      <!-- 추후 메뉴 추가 영역 -->
-
+      <!-- 추후 메뉴 추가 -->
     </nav>
 
     <div class="sidebar-bottom">
@@ -427,7 +453,7 @@
         <div class="user-email" id="user-email">...</div>
       </div>
       <button class="btn-logout" onclick="logout()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
@@ -440,7 +466,7 @@
   <!-- 메인 -->
   <div class="main">
     <div class="topbar">
-      <span class="page-breadcrumb">도구 › <span>QR 코드 생성기</span></span>
+      <span class="page-breadcrumb">메뉴 › <span>QR 코드 생성기</span></span>
     </div>
 
     <div class="content">
@@ -448,12 +474,19 @@
 
       <div class="qr-layout">
 
-        <!-- 설정 -->
+        <!-- 설정 패널 -->
         <div class="panel">
+
+          <!-- URL + 재생성 -->
           <div class="sec-label">링크</div>
-          <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
+          <div class="url-row">
+            <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
+            <button class="regen-inline" onclick="liveUpdate()">재생성</button>
+          </div>
 
           <div class="divider"></div>
+
+          <!-- 색상 -->
           <div class="sec-label">색상</div>
           <div class="two-col">
             <div class="col">
@@ -467,6 +500,8 @@
           </div>
 
           <div class="divider"></div>
+
+          <!-- 테두리 -->
           <div class="sec-label">테두리</div>
           <div class="field-label" style="margin-bottom:8px">스타일</div>
           <div class="bstyle-row">
@@ -474,13 +509,13 @@
               <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8"/></svg>없음
             </button>
             <button class="bstyle-btn" onclick="setBorderStyle('solid',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#4f46e5" stroke-width="2"/></svg>실선
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#073763" stroke-width="2"/></svg>실선
             </button>
             <button class="bstyle-btn" onclick="setBorderStyle('rounded',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="#e8e8e8" stroke="#4f46e5" stroke-width="2"/></svg>둥근
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="#e8e8e8" stroke="#073763" stroke-width="2"/></svg>둥근
             </button>
             <button class="bstyle-btn" onclick="setBorderStyle('dashed',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#4f46e5" stroke-width="2" stroke-dasharray="4 2"/></svg>점선
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#073763" stroke-width="2" stroke-dasharray="4 2"/></svg>점선
             </button>
           </div>
 
@@ -489,24 +524,27 @@
             <input type="range" id="border-width" min="0" max="24" value="4" oninput="onSlider('border-width','bw-val');liveUpdate()">
             <span class="slider-val" id="bw-val">4px</span>
           </div>
+
           <div class="field-label">여백</div>
           <div class="slider-row">
             <input type="range" id="padding" min="0" max="40" value="10" oninput="onSlider('padding','pad-val');liveUpdate()">
             <span class="slider-val" id="pad-val">10px</span>
           </div>
+
           <div class="field-label">테두리 색상</div>
-          <div class="palette-row" id="border-palette" style="margin-bottom:0"></div>
+          <div class="palette-row" id="border-palette"></div>
 
           <div class="divider"></div>
-          <div class="sec-label">오류 정정</div>
+
+          <!-- 오류 정정 -->
+          <div class="sec-label">오류 정정 레벨</div>
           <div class="ec-row">
             <button class="ec-btn" onclick="setEC('L',this)"><span class="lv">L</span><span class="desc">7%</span></button>
             <button class="ec-btn" onclick="setEC('M',this)"><span class="lv">M</span><span class="desc">15%</span></button>
             <button class="ec-btn" onclick="setEC('Q',this)"><span class="lv">Q</span><span class="desc">25%</span></button>
             <button class="ec-btn active" onclick="setEC('H',this)"><span class="lv">H★</span><span class="desc">30%</span></button>
           </div>
-          <p class="ec-tip">★ H: 30% 손상돼도 인식 가능. 권장.</p>
-          <button class="regen-btn" onclick="liveUpdate()">재생성</button>
+          <p class="ec-tip">★ H: 30% 손상·가려져도 인식 가능. 기본 권장.</p>
         </div>
 
         <!-- 미리보기 -->
@@ -527,6 +565,8 @@
 
 <script>
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaGpmdHVxdHRpYW9qaW5wcHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjc5NDgsImV4cCI6MjA4OTkwMzk0OH0.j4nsoSLtbMG_7dCCyxszQxKWgLbstGAwiaGWjNnoeaU';
+  const STAGE_SIZE = 200; // 고정 미리보기 크기
+  const QR_SIZE    = 200;
 
   // 인증 확인
   const saved = localStorage.getItem('sb_session');
@@ -550,9 +590,8 @@
     location.href = '/';
   }
 
-  const QR_SIZE = 200;
   const state = { fg: '#000000', bg: '#ffffff', borderColor: '#000000', borderStyle: 'none', ec: 'H' };
-  const RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#4f46e5','#a855f7','#000000','#ffffff'];
+  const RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
 
   function buildPalette(containerId, defaultColor, onPick) {
     const wrap = document.getElementById(containerId);
@@ -590,8 +629,8 @@
     wrap.appendChild(plusBtn);
   }
 
-  buildPalette('fg-palette', '#000000', c => state.fg = c);
-  buildPalette('bg-palette', '#ffffff', c => state.bg = c);
+  buildPalette('fg-palette',     '#000000', c => state.fg = c);
+  buildPalette('bg-palette',     '#ffffff', c => state.bg = c);
   buildPalette('border-palette', '#000000', c => state.borderColor = c);
 
   function onSlider(id, valId) {
@@ -628,16 +667,24 @@
       colorDark: state.fg, colorLight: state.bg,
       correctLevel: ecMap[state.ec],
     });
+
     setTimeout(() => {
       const inner = document.getElementById('qr-inner');
       inner.style.padding = pad + 'px';
       inner.style.background = state.bg;
+
       if (state.borderStyle === 'none' || bw === 0) {
-        inner.style.border = 'none'; inner.style.borderRadius = '0';
+        inner.style.border = 'none';
+        inner.style.borderRadius = '0';
       } else {
         inner.style.border = `${bw}px ${state.borderStyle === 'dashed' ? 'dashed' : 'solid'} ${state.borderColor}`;
         inner.style.borderRadius = state.borderStyle === 'rounded' ? '12px' : '0';
       }
+
+      // 미리보기 고정 크기: 실제 크기가 STAGE_SIZE보다 크면 축소
+      const totalSize = QR_SIZE + pad * 2 + bw * 2;
+      const scale = totalSize > STAGE_SIZE ? STAGE_SIZE / totalSize : 1;
+      inner.style.transform = `scale(${scale})`;
     }, 60);
   }
 
@@ -648,11 +695,14 @@
     const pad    = parseInt(document.getElementById('padding').value) || 0;
     const bw     = parseInt(document.getElementById('border-width').value) || 0;
     const total  = QR_SIZE + pad * 2 + bw * 2;
-    const out    = document.createElement('canvas');
+
+    const out = document.createElement('canvas');
     out.width = total; out.height = total;
     const ctx = out.getContext('2d');
+
     ctx.fillStyle = state.bg;
     ctx.fillRect(0, 0, total, total);
+
     if (state.borderStyle !== 'none' && bw > 0) {
       ctx.strokeStyle = state.borderColor;
       ctx.lineWidth = bw;
@@ -662,6 +712,7 @@
       if (r > 0) { ctx.beginPath(); ctx.roundRect(half, half, total - bw, total - bw, r); ctx.stroke(); }
       else { ctx.strokeRect(half, half, total - bw, total - bw); }
     }
+
     const drawImg = src => {
       const image = new Image();
       image.onload = () => {
@@ -674,6 +725,7 @@
       };
       image.src = src;
     };
+
     if (canvas) drawImg(canvas.toDataURL('image/png'));
     else if (img) drawImg(img.src);
   }
