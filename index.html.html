@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR 코드 생성기</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', 'Segoe UI', sans-serif;
+      background: #f1f3f6;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 36px 20px;
+    }
+
+    .wrapper {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 860px;
+      align-items: flex-start;
+    }
+
+    /* ── 공통 카드 ── */
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 28px 26px;
+      box-shadow: 0 2px 18px rgba(0,0,0,0.07);
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 22px;
+    }
+
+    /* ── 섹션 ── */
+    .sec { margin-bottom: 22px; }
+
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 7px;
+    }
+
+    /* ── URL 입력 ── */
+    .url-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    input.url-input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      color: #111;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input.url-input:focus { border-color: #4f46e5; }
+
+    button.gen-btn {
+      padding: 11px 18px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.18s;
+    }
+    button.gen-btn:hover { background: #3730a3; }
+
+    /* ── 색상 팔레트 ── */
+    .palette-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: transform 0.12s, border-color 0.12s;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.18); }
+    .swatch.selected { border-color: #4f46e5; transform: scale(1.18); box-shadow: 0 0 0 1px #fff inset; }
+    .swatch[data-color="#ffffff"] { border-color: #d1d5db; }
+    .swatch[data-color="#ffffff"].selected { border-color: #4f46e5; }
+
+    .plus-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      border: 1.5px dashed #d1d5db;
+      background: #f9fafb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #9ca3af;
+      flex-shrink: 0;
+      transition: border-color 0.15s, color 0.15s;
+      position: relative;
+    }
+    .plus-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+
+    .plus-btn input[type="color"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      top: 0; left: 0;
+      border: none;
+      padding: 0;
+    }
+
+    .two-col { display: flex; gap: 20px; }
+    .two-col > .col { flex: 1; }
+
+    /* ── 테두리 스타일 ── */
+    .bstyle-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .bstyle-btn {
+      flex: 1;
+      padding: 9px 4px 7px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .bstyle-btn:hover { border-color: #c7d2fe; }
+    .bstyle-btn.active { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; font-weight: 700; }
+    .bstyle-btn svg { width: 28px; height: 28px; }
+
+    /* ── 슬라이더 ── */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: #4f46e5;
+      cursor: pointer;
+    }
+    .slider-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      min-width: 34px;
+      text-align: right;
+    }
+
+    /* ── 오류 정정 ── */
+    .ec-row {
+      display: flex;
+      gap: 7px;
+    }
+    .ec-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 9px;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .ec-btn:hover { border-color: #c7d2fe; }
+    .ec-btn.active { border-color: #4f46e5; background: #eef2ff; }
+    .ec-btn .lv { font-size: 15px; font-weight: 800; color: #374151; display: block; }
+    .ec-btn.active .lv { color: #4f46e5; }
+    .ec-btn .desc { font-size: 10px; color: #9ca3af; }
+    .ec-btn.active .desc { color: #818cf8; }
+    .ec-tip { font-size: 12px; color: #9ca3af; margin-top: 8px; line-height: 1.5; }
+
+    .divider { height: 1px; background: #f3f4f6; margin: 20px 0; }
+
+    /* ── 미리보기 패널 ── */
+    .preview-panel {
+      width: 280px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: sticky;
+      top: 36px;
+    }
+
+    #qr-stage {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      min-height: 180px;
+    }
+
+    #qr-inner {
+      display: inline-block;
+      line-height: 0;
+      transition: box-shadow 0.2s;
+    }
+    #qr-inner canvas, #qr-inner img { display: block; }
+
+    .dl-btn {
+      width: 100%;
+      padding: 13px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s;
+      margin-top: 4px;
+    }
+    .dl-btn:hover { background: #3730a3; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- 설정 패널 -->
+  <div class="card" style="flex:1">
+    <div class="card-title">QR 코드 생성기</div>
+
+    <!-- URL -->
+    <div class="sec">
+      <div class="sec-label">링크</div>
+      <div class="url-wrap">
+        <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
+        <button class="gen-btn" onclick="generate()">재생성</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 색상 -->
+    <div class="sec">
+      <div class="sec-label">색상</div>
+      <div class="two-col">
+        <div class="col">
+          <div class="field-label">QR 색상</div>
+          <div class="palette-row" id="fg-palette"></div>
+        </div>
+        <div class="col">
+          <div class="field-label">배경 색상</div>
+          <div class="palette-row" id="bg-palette"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 테두리 -->
+    <div class="sec">
+      <div class="sec-label">테두리</div>
+
+      <div class="field-label" style="margin-bottom:9px">스타일</div>
+      <div class="bstyle-row">
+        <button class="bstyle-btn active" onclick="setBorderStyle('none',this)">
+          <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" fill="#e5e7eb"/></svg>없음
+        </button>
+        <button class="bstyle-btn" onclick="setBorderStyle('solid',this)">
+          <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" fill="#e5e7eb" stroke="#4f46e5" stroke-width="2.5"/></svg>실선
+        </button>
+        <button class="bstyle-btn" onclick="setBorderStyle('rounded',this)">
+          <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="6" fill="#e5e7eb" stroke="#4f46e5" stroke-width="2.5"/></svg>둥근 실선
+        </button>
+        <button class="bstyle-btn" onclick="setBorderStyle('dashed',this)">
+          <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" fill="#e5e7eb" stroke="#4f46e5" stroke-width="2.5" stroke-dasharray="4 2"/></svg>점선
+        </button>
+      </div>
+
+      <div class="field-label">두께</div>
+      <div class="slider-row">
+        <input type="range" id="border-width" min="0" max="24" value="4" oninput="onSlider('border-width','bw-val');liveUpdate()">
+        <span class="slider-val" id="bw-val">4px</span>
+      </div>
+
+      <div class="field-label">여백</div>
+      <div class="slider-row">
+        <input type="range" id="padding" min="0" max="40" value="10" oninput="onSlider('padding','pad-val');liveUpdate()">
+        <span class="slider-val" id="pad-val">10px</span>
+      </div>
+
+      <div class="field-label">테두리 색상</div>
+      <div class="palette-row" id="border-palette"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 오류 정정 -->
+    <div class="sec" style="margin-bottom:0">
+      <div class="sec-label">오류 정정 레벨</div>
+      <div class="ec-row">
+        <button class="ec-btn" onclick="setEC('L',this)"><span class="lv">L</span><span class="desc">7%</span></button>
+        <button class="ec-btn" onclick="setEC('M',this)"><span class="lv">M</span><span class="desc">15%</span></button>
+        <button class="ec-btn" onclick="setEC('Q',this)"><span class="lv">Q</span><span class="desc">25%</span></button>
+        <button class="ec-btn active" onclick="setEC('H',this)"><span class="lv">H ★</span><span class="desc">30%</span></button>
+      </div>
+      <p class="ec-tip">★ H: QR이 30% 손상·가려져도 인식 가능. 기본 권장.</p>
+    </div>
+  </div>
+
+  <!-- 미리보기 패널 -->
+  <div class="preview-panel">
+    <div class="card" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+      <div class="card-title" style="align-self:flex-start">미리보기</div>
+      <div id="qr-stage">
+        <div id="qr-inner">
+          <div id="qr-code"></div>
+        </div>
+      </div>
+    </div>
+    <input
+      type="text"
+      id="filename-input"
+      placeholder="파일명 (기본: qrcode)"
+      style="
+        width:100%;
+        margin-top:12px;
+        padding:10px 13px;
+        border:1.5px solid #e5e7eb;
+        border-radius:10px;
+        font-family:inherit;
+        font-size:13px;
+        color:#111;
+        outline:none;
+        transition:border-color 0.2s;
+      "
+      onfocus="this.style.borderColor='#4f46e5'"
+      onblur="this.style.borderColor='#e5e7eb'"
+    />
+    <button class="dl-btn" onclick="download()">이미지 저장 (PNG)</button>
+  </div>
+</div>
+
+<script>
+  const QR_SIZE = 200;
+
+  const state = {
+    fg: '#000000',
+    bg: '#ffffff',
+    borderColor: '#000000',
+    borderStyle: 'none',
+    ec: 'H',
+  };
+
+  const RAINBOW = [
+    '#ef4444', // 빨
+    '#f97316', // 주
+    '#eab308', // 노
+    '#22c55e', // 초
+    '#3b82f6', // 파
+    '#4f46e5', // 남
+    '#a855f7', // 보
+    '#000000', // 검
+    '#ffffff', // 흰
+  ];
+
+  function buildPalette(containerId, defaultColor, onPick) {
+    const wrap = document.getElementById(containerId);
+    let customSwatch = null;
+
+    function selectSwatch(el, color) {
+      wrap.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+      el.classList.add('selected');
+      onPick(color);
+      liveUpdate();
+    }
+
+    // 무지개 스와치
+    RAINBOW.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'swatch';
+      el.style.background = c;
+      el.dataset.color = c;
+      if (c === defaultColor) el.classList.add('selected');
+      el.onclick = () => selectSwatch(el, c);
+      wrap.appendChild(el);
+    });
+
+    // + 버튼
+    const plusBtn = document.createElement('div');
+    plusBtn.className = 'plus-btn';
+    plusBtn.innerHTML = `<span style="pointer-events:none">+</span><input type="color" value="#ff0000">`;
+    const colorInput = plusBtn.querySelector('input[type="color"]');
+    colorInput.addEventListener('input', () => {
+      const c = colorInput.value;
+      // 커스텀 스와치 업데이트
+      if (!customSwatch) {
+        customSwatch = document.createElement('div');
+        customSwatch.className = 'swatch';
+        wrap.insertBefore(customSwatch, plusBtn);
+      }
+      customSwatch.style.background = c;
+      customSwatch.dataset.color = c;
+      customSwatch.onclick = () => selectSwatch(customSwatch, c);
+      selectSwatch(customSwatch, c);
+    });
+    wrap.appendChild(plusBtn);
+  }
+
+  buildPalette('fg-palette', '#000000', c => state.fg = c);
+  buildPalette('bg-palette', '#ffffff', c => state.bg = c);
+  buildPalette('border-palette', '#000000', c => state.borderColor = c);
+
+  function onSlider(id, valId) {
+    document.getElementById(valId).textContent = document.getElementById(id).value + 'px';
+  }
+
+  function setBorderStyle(style, btn) {
+    state.borderStyle = style;
+    document.querySelectorAll('.bstyle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    liveUpdate();
+  }
+
+  function setEC(level, btn) {
+    state.ec = level;
+    document.querySelectorAll('.ec-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    liveUpdate();
+  }
+
+  let renderTimer = null;
+  function liveUpdate() {
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(renderQR, 40);
+  }
+
+  function renderQR() {
+    const url = document.getElementById('url-input').value.trim() || 'https://example.com';
+    const ecMap = { L: QRCode.CorrectLevel.L, M: QRCode.CorrectLevel.M, Q: QRCode.CorrectLevel.Q, H: QRCode.CorrectLevel.H };
+    const bw  = parseInt(document.getElementById('border-width').value) || 0;
+    const pad = parseInt(document.getElementById('padding').value) || 0;
+
+    const container = document.getElementById('qr-code');
+    container.innerHTML = '';
+
+    new QRCode(container, {
+      text: url,
+      width: QR_SIZE,
+      height: QR_SIZE,
+      colorDark: state.fg,
+      colorLight: state.bg,
+      correctLevel: ecMap[state.ec],
+    });
+
+    setTimeout(() => {
+      const inner = document.getElementById('qr-inner');
+      inner.style.padding = pad + 'px';
+      inner.style.background = state.bg;
+
+      if (state.borderStyle === 'none' || bw === 0) {
+        inner.style.border = 'none';
+        inner.style.borderRadius = '0';
+      } else {
+        const dash = state.borderStyle === 'dashed' ? 'dashed' : 'solid';
+        inner.style.border = `${bw}px ${dash} ${state.borderColor}`;
+        inner.style.borderRadius = state.borderStyle === 'rounded' ? '12px' : '0';
+      }
+    }, 60);
+  }
+
+  function generate() {
+    liveUpdate();
+  }
+
+  function download() {
+    const inner = document.getElementById('qr-inner');
+    const canvas = inner.querySelector('canvas');
+    const img    = inner.querySelector('img');
+    const pad    = parseInt(document.getElementById('padding').value) || 0;
+    const bw     = parseInt(document.getElementById('border-width').value) || 0;
+    const total  = QR_SIZE + pad * 2 + bw * 2;
+
+    const out = document.createElement('canvas');
+    out.width = total; out.height = total;
+    const ctx = out.getContext('2d');
+
+    ctx.fillStyle = state.bg;
+    ctx.fillRect(0, 0, total, total);
+
+    if (state.borderStyle !== 'none' && bw > 0) {
+      ctx.strokeStyle = state.borderColor;
+      ctx.lineWidth   = bw;
+      ctx.setLineDash(state.borderStyle === 'dashed' ? [8, 4] : []);
+      const half = bw / 2;
+      const r = state.borderStyle === 'rounded' ? 12 : 0;
+      if (r > 0) {
+        ctx.beginPath();
+        ctx.roundRect(half, half, total - bw, total - bw, r);
+        ctx.stroke();
+      } else {
+        ctx.strokeRect(half, half, total - bw, total - bw);
+      }
+    }
+
+    const drawImg = src => {
+      const image = new Image();
+      image.onload = () => {
+        ctx.drawImage(image, bw + pad, bw + pad, QR_SIZE, QR_SIZE);
+        const a = document.createElement('a');
+        a.href = out.toDataURL('image/png');
+        const fname = (document.getElementById('filename-input').value.trim() || 'qrcode').replace(/\.png$/i, '');
+        a.download = fname + '.png';
+        a.click();
+      };
+      image.src = src;
+    };
+
+    if (canvas) drawImg(canvas.toDataURL('image/png'));
+    else if (img) drawImg(img.src);
+  }
+
+  // URL 입력 실시간
+  document.getElementById('url-input').addEventListener('input', liveUpdate);
+  document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') liveUpdate(); });
+
+  // 최초 렌더
+  renderQR();
+</script>
+</body>
+</html>
