@@ -895,13 +895,27 @@
   }
 
   async function shortenUrl() {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) return;
     const btn = document.getElementById('shorten-btn');
+    const result = document.getElementById('short-result');
+
     btn.textContent = '생성 중...';
     btn.disabled = true;
-    await new Promise(r => setTimeout(r, 800));
-    window.open('https://r2.jjalbot.com/2023/03/UWNeFNHWyg.jpeg', '_blank');
-    btn.textContent = '링크 줄이기';
-    btn.disabled = false;
+    result.textContent = '';
+
+    try {
+      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error();
+      const short = (await res.text()).trim();
+      document.getElementById('url-input').value = short;
+      liveUpdate();
+    } catch(e) {
+      result.textContent = '생성 실패. 다시 시도해주세요.';
+    } finally {
+      btn.textContent = '링크 줄이기';
+      btn.disabled = false;
+    }
   }
 
   function copyUrl() {
