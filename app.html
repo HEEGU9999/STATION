@@ -593,8 +593,7 @@
           </div>
           <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
             <button class="regen-inline" id="shorten-btn" onclick="shortenUrl()">링크 줄이기</button>
-            <span id="short-result" style="font-size:12px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-            <button id="copy-btn" onclick="copyShort()" style="display:none; padding:8px 12px; background:var(--primary-light); color:var(--primary); border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;">복사</button>
+            <span id="short-result" style="font-size:12px; color:#e53e3e;"></span>
           </div>
 
           <div class="divider"></div>
@@ -775,8 +774,6 @@
   function clearShortUrl() {
     shortUrl = '';
     document.getElementById('short-result').textContent = '';
-    document.getElementById('short-result').style.color = '';
-    document.getElementById('copy-btn').style.display = 'none';
   }
 
   function resetAndRegen() {
@@ -896,40 +893,23 @@
     if (!url) return;
     const btn = document.getElementById('shorten-btn');
     const result = document.getElementById('short-result');
-    const copyBtn = document.getElementById('copy-btn');
 
     btn.textContent = '생성 중...';
     btn.disabled = true;
     result.textContent = '';
-    copyBtn.style.display = 'none';
 
     try {
-      const res = await fetch('https://cleanuri.com/api/v1/shorten', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `url=${encodeURIComponent(url)}`
-      });
-      const data = await res.json();
-      if (!res.ok || !data.result_url) throw new Error();
-      shortUrl = data.result_url;
-      result.textContent = shortUrl;
-      result.style.color = '';
-      copyBtn.style.display = 'block';
+      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error();
+      const short = (await res.text()).trim();
+      document.getElementById('url-input').value = short;
+      liveUpdate();
     } catch(e) {
       result.textContent = '생성 실패. 다시 시도해주세요.';
-      result.style.color = '#e53e3e';
     } finally {
       btn.textContent = '링크 줄이기';
       btn.disabled = false;
     }
-  }
-
-  function copyShort() {
-    navigator.clipboard.writeText(shortUrl).then(() => {
-      const btn = document.getElementById('copy-btn');
-      btn.textContent = '복사됨!';
-      setTimeout(() => btn.textContent = '복사', 1500);
-    });
   }
 
   document.getElementById('url-input').addEventListener('input', liveUpdate);
