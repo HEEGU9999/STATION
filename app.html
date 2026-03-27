@@ -671,7 +671,7 @@
               </div>
             </div>
             <div class="dl-area">
-              <input class="filename-input" id="filename-input" type="text" placeholder="파일명 (기본: qrcode)" />
+              <input class="filename-input" id="filename-input" type="text" placeholder="파일명 (기본: 날짜_QR Code)" />
               <button class="dl-btn" onclick="download()">이미지 저장 (PNG)</button>
             </div>
           </div>
@@ -881,7 +881,12 @@
       const image = new Image();
       image.onload = () => {
         ctx.drawImage(image, bw + pad, bw + pad, QR_SIZE, QR_SIZE);
-        const fname = (document.getElementById('filename-input').value.trim() || 'qrcode').replace(/\.png$/i, '');
+        const today = new Date();
+        const yy = String(today.getFullYear()).slice(2);
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const defaultName = `${yy}${mm}${dd}_QR Code`;
+        const fname = (document.getElementById('filename-input').value.trim() || defaultName).replace(/\.png$/i, '');
         const a = document.createElement('a');
         a.href = out.toDataURL('image/png');
         a.download = fname + '.png';
