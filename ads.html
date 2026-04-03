@@ -563,6 +563,15 @@
       </svg>
       보고서
     </button>
+    <div class="sidebar-label" style="margin-top:16px;">도구</div>
+    <button class="nav-item" id="nav-qr" onclick="navigate('qr')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor" stroke="none"/>
+      </svg>
+      QR 코드 생성기
+    </button>
   </div>
   <div class="sidebar-bottom">
     <div class="user-chip" onclick="handleLogout()">
@@ -794,7 +803,7 @@ function showToast(msg) {
 function navigate(view, params = {}) {
   Object.values(charts).forEach(c => { try { c.destroy(); } catch(e) {} });
   charts = {};
-  ['dashboard','campaigns','reports'].forEach(v => {
+  ['dashboard','campaigns','reports','qr'].forEach(v => {
     document.getElementById('nav-' + v)?.classList.toggle('active', v === view);
   });
   switch (view) {
@@ -802,6 +811,7 @@ function navigate(view, params = {}) {
     case 'campaigns':       renderCampaigns(); break;
     case 'reports':         renderReports(); break;
     case 'campaign-detail': renderCampaignDetail(params.id); break;
+    case 'qr':              renderQR(); break;
   }
 }
 
@@ -1503,6 +1513,291 @@ function escHtml(s) {
 function statusLabel(s) { return {active:'활성',paused:'일시정지',draft:'초안',completed:'완료'}[s]||s; }
 function slotDesc(slot) {
   return slot === 'C' ? '주문 완료 직후' : '대기 / 식사 중';
+}
+
+// ── QR 생성기 ─────────────────────────────────────
+let qrInitialized = false;
+const QR_DEFAULTS = { fg:'#000000', bg:'#ffffff', borderColor:'#000000', borderStyle:'none', ec:'H', borderWidth:4, padding:10 };
+const QR_STAGE = 300;
+const QR_RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
+let qrState = { ...QR_DEFAULTS };
+let qrShortUrl = '';
+let qrTimer = null;
+
+function renderQR() {
+  document.getElementById('topbar-title').textContent = 'QR 코드 생성기';
+  document.getElementById('topbar-actions').innerHTML = '';
+  document.getElementById('content').innerHTML = `
+    <div style="display:flex;gap:18px;align-items:flex-start;max-width:1100px;">
+      <!-- 설정 패널 -->
+      <div class="card" style="flex:0 0 560px;">
+        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">링크</div>
+        <div style="display:flex;gap:8px;margin-bottom:6px;">
+          <input id="qr-url" type="text" placeholder="https://example.com" value="https://example.com" style="flex:1;min-width:0;">
+          <button class="btn btn-primary btn-sm" id="qr-shorten-btn" onclick="qrShortenUrl()">링크 줄이기</button>
+          <button class="btn btn-secondary btn-sm" onclick="qrReset()" title="초기화">↺</button>
+          <button class="btn btn-secondary btn-sm" id="qr-copy-btn" onclick="qrCopyUrl()" title="복사">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div id="qr-short-msg" style="font-size:12px;color:#f87171;min-height:16px;margin-bottom:12px;"></div>
+
+        <div style="height:1px;background:#1a1a1a;margin:14px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">색상</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:14px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:9px;">QR 색상</div>
+            <div id="qr-fg-palette" style="display:flex;gap:7px;align-items:center;flex-wrap:nowrap;"></div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:9px;">배경 색상</div>
+            <div id="qr-bg-palette" style="display:flex;gap:7px;align-items:center;flex-wrap:nowrap;"></div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:#1a1a1a;margin:14px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">테두리</div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;">
+          ${[['none','없음'],['solid','실선'],['rounded','둥근'],['dashed','점선']].map(([v,l])=>`
+            <button class="qr-bstyle-btn ${qrState.borderStyle===v?'qr-bstyle-active':''}" onclick="qrSetBorder('${v}',this)">${l}</button>
+          `).join('')}
+        </div>
+        <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:8px;">두께</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <input type="range" id="qr-bw" min="0" max="24" value="${qrState.borderWidth}" oninput="qrSlider('qr-bw','qr-bw-val')" style="flex:1;accent-color:#fff;">
+          <span id="qr-bw-val" style="font-size:13px;color:#555;min-width:36px;text-align:right;">${qrState.borderWidth}px</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:8px;">여백</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <input type="range" id="qr-pad" min="0" max="40" value="${qrState.padding}" oninput="qrSlider('qr-pad','qr-pad-val')" style="flex:1;accent-color:#fff;">
+          <span id="qr-pad-val" style="font-size:13px;color:#555;min-width:36px;text-align:right;">${qrState.padding}px</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:9px;">테두리 색상</div>
+        <div id="qr-border-palette" style="display:flex;gap:7px;align-items:center;flex-wrap:nowrap;margin-bottom:14px;"></div>
+
+        <div style="height:1px;background:#1a1a1a;margin:14px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">오류 정정 레벨</div>
+        <div style="display:flex;gap:8px;">
+          ${[['L','7%'],['M','15%'],['Q','25%'],['H★','30%']].map(([lv,desc],i)=>{
+            const v = ['L','M','Q','H'][i];
+            return `<button class="qr-ec-btn ${qrState.ec===v?'qr-ec-active':''}" onclick="qrSetEC('${v}',this)">
+              <span style="font-size:16px;font-weight:800;">${lv}</span>
+              <span style="font-size:11px;color:#555;">${desc}</span>
+            </button>`;
+          }).join('')}
+        </div>
+        <p style="font-size:12px;color:#333;margin-top:9px;">H: 30% 손상돼도 인식 가능. 기본 권장.</p>
+      </div>
+
+      <!-- 미리보기 -->
+      <div class="card" style="flex:1;display:flex;flex-direction:column;align-items:center;position:sticky;top:20px;">
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:20px;align-self:flex-start;">미리보기</div>
+        <div id="qr-stage" style="width:280px;height:280px;display:flex;align-items:center;justify-content:center;border:2px dashed #222;border-radius:8px;overflow:visible;position:relative;">
+          <div id="qr-inner" style="display:inline-block;line-height:0;transform-origin:center center;"><div id="qr-code"></div></div>
+        </div>
+        <div style="margin-top:20px;width:304px;display:flex;flex-direction:column;gap:8px;">
+          <input id="qr-filename" type="text" placeholder="파일명 (기본: 날짜_QR Code)">
+          <button class="btn btn-primary" onclick="qrDownload()" style="width:100%;justify-content:center;">이미지 저장 (PNG)</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 버튼 스타일 주입
+  if (!document.getElementById('qr-styles')) {
+    const s = document.createElement('style');
+    s.id = 'qr-styles';
+    s.textContent = `
+      .qr-swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0;}
+      .qr-swatch:hover{transform:scale(1.2);}
+      .qr-swatch.sel{border-color:#fff;transform:scale(1.15);}
+      .qr-swatch[data-c="#ffffff"]{border-color:#333;}
+      .qr-plus{width:26px;height:26px;border-radius:6px;border:1.5px dashed #333;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#444;position:relative;flex-shrink:0;}
+      .qr-plus input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;border:none;padding:0;}
+      .qr-bstyle-btn{flex:1;padding:9px 4px;border:1.5px solid #1f1f1f;border-radius:8px;background:transparent;font-family:inherit;font-size:12px;color:#555;cursor:pointer;transition:all .15s;}
+      .qr-bstyle-btn:hover{border-color:#333;color:#aaa;}
+      .qr-bstyle-active{border-color:#fff !important;color:#fff !important;}
+      .qr-ec-btn{flex:1;padding:10px 4px;border:1.5px solid #1f1f1f;border-radius:8px;background:transparent;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;}
+      .qr-ec-btn:hover{border-color:#333;}
+      .qr-ec-active{border-color:#fff !important;}
+    `;
+    document.head.appendChild(s);
+  }
+
+  if (!document.getElementById('qrcodejs')) {
+    const sc = document.createElement('script');
+    sc.id = 'qrcodejs';
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    sc.onload = () => { qrBuildPalettes(); qrLiveUpdate(); };
+    document.head.appendChild(sc);
+  } else {
+    qrBuildPalettes();
+    qrLiveUpdate();
+  }
+
+  document.getElementById('qr-url').addEventListener('input', qrLiveUpdate);
+}
+
+function qrBuildPalette(id, def, onPick) {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  let custom = null;
+  function sel(el, c) {
+    wrap.querySelectorAll('.qr-swatch').forEach(s => s.classList.remove('sel'));
+    el.classList.add('sel');
+    onPick(c); qrLiveUpdate();
+  }
+  QR_RAINBOW.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'qr-swatch'; el.style.background = c; el.dataset.c = c;
+    if (c === def) el.classList.add('sel');
+    el.onclick = () => sel(el, c);
+    wrap.appendChild(el);
+  });
+  const plus = document.createElement('div');
+  plus.className = 'qr-plus';
+  plus.innerHTML = `<span style="pointer-events:none">+</span><input type="color" value="#ff0000">`;
+  plus.querySelector('input').addEventListener('input', function() {
+    const c = this.value;
+    if (!custom) { custom = document.createElement('div'); custom.className = 'qr-swatch'; wrap.insertBefore(custom, plus); }
+    custom.style.background = c; custom.dataset.c = c;
+    custom.onclick = () => sel(custom, c);
+    sel(custom, c);
+  });
+  wrap.appendChild(plus);
+}
+
+function qrBuildPalettes() {
+  qrBuildPalette('qr-fg-palette',     qrState.fg,          c => qrState.fg = c);
+  qrBuildPalette('qr-bg-palette',     qrState.bg,          c => qrState.bg = c);
+  qrBuildPalette('qr-border-palette', qrState.borderColor, c => qrState.borderColor = c);
+}
+
+function qrSlider(id, valId) {
+  const v = document.getElementById(id)?.value;
+  if (v !== undefined) { document.getElementById(valId).textContent = v + 'px'; qrLiveUpdate(); }
+}
+
+function qrSetBorder(style, btn) {
+  qrState.borderStyle = style;
+  document.querySelectorAll('.qr-bstyle-btn').forEach(b => b.classList.remove('qr-bstyle-active'));
+  btn.classList.add('qr-bstyle-active');
+  qrLiveUpdate();
+}
+
+function qrSetEC(level, btn) {
+  qrState.ec = level;
+  document.querySelectorAll('.qr-ec-btn').forEach(b => b.classList.remove('qr-ec-active'));
+  btn.classList.add('qr-ec-active');
+  qrLiveUpdate();
+}
+
+function qrLiveUpdate() {
+  clearTimeout(qrTimer);
+  qrTimer = setTimeout(qrRender, 40);
+}
+
+function qrRender() {
+  if (typeof QRCode === 'undefined') return;
+  const url = document.getElementById('qr-url')?.value.trim() || 'https://example.com';
+  const ecMap = { L: QRCode.CorrectLevel.L, M: QRCode.CorrectLevel.M, Q: QRCode.CorrectLevel.Q, H: QRCode.CorrectLevel.H };
+  const bw  = parseInt(document.getElementById('qr-bw')?.value) || 0;
+  const pad = parseInt(document.getElementById('qr-pad')?.value) || 0;
+  const code = document.getElementById('qr-code');
+  if (!code) return;
+  code.innerHTML = '';
+  new QRCode(code, { text: url, width: QR_STAGE, height: QR_STAGE, colorDark: qrState.fg, colorLight: qrState.bg, correctLevel: ecMap[qrState.ec] });
+  setTimeout(() => {
+    const inner = document.getElementById('qr-inner');
+    if (!inner) return;
+    inner.style.padding = pad + 'px';
+    inner.style.background = qrState.bg;
+    if (qrState.borderStyle === 'none' || bw === 0) {
+      inner.style.border = 'none'; inner.style.borderRadius = '0';
+    } else {
+      inner.style.border = `${bw}px ${qrState.borderStyle === 'dashed' ? 'dashed' : 'solid'} ${qrState.borderColor}`;
+      inner.style.borderRadius = qrState.borderStyle === 'rounded' ? '12px' : '0';
+    }
+    const total = QR_STAGE + pad * 2 + bw * 2;
+    const scale = total > QR_STAGE ? QR_STAGE / total : 1;
+    inner.style.transform = `scale(${scale})`;
+  }, 60);
+}
+
+function qrReset() {
+  qrState = { ...QR_DEFAULTS };
+  document.getElementById('qr-url').value = 'https://example.com';
+  document.getElementById('qr-bw').value = QR_DEFAULTS.borderWidth;
+  document.getElementById('qr-pad').value = QR_DEFAULTS.padding;
+  document.getElementById('qr-bw-val').textContent = QR_DEFAULTS.borderWidth + 'px';
+  document.getElementById('qr-pad-val').textContent = QR_DEFAULTS.padding + 'px';
+  qrBuildPalettes();
+  qrLiveUpdate();
+}
+
+async function qrShortenUrl() {
+  const url = document.getElementById('qr-url')?.value.trim();
+  if (!url) return;
+  const btn = document.getElementById('qr-shorten-btn');
+  const msg = document.getElementById('qr-short-msg');
+  btn.disabled = true; btn.textContent = '생성 중...';
+  msg.textContent = '';
+  try {
+    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+    if (!res.ok) throw new Error();
+    document.getElementById('qr-url').value = (await res.text()).trim();
+    qrLiveUpdate();
+  } catch(e) { msg.textContent = '생성 실패. 다시 시도해주세요.'; }
+  finally { btn.disabled = false; btn.textContent = '링크 줄이기'; }
+}
+
+function qrCopyUrl() {
+  const url = document.getElementById('qr-url')?.value.trim();
+  if (!url) return;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('qr-copy-btn');
+    btn.textContent = '복사됨';
+    setTimeout(() => { btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`; }, 1500);
+  });
+}
+
+function qrDownload() {
+  const inner = document.getElementById('qr-inner');
+  const canvas = inner?.querySelector('canvas');
+  const img    = inner?.querySelector('img');
+  const pad = parseInt(document.getElementById('qr-pad')?.value) || 0;
+  const bw  = parseInt(document.getElementById('qr-bw')?.value)  || 0;
+  const total = QR_STAGE + pad * 2 + bw * 2;
+  const out = document.createElement('canvas');
+  out.width = total; out.height = total;
+  const ctx = out.getContext('2d');
+  const r = (qrState.borderStyle === 'rounded' && bw > 0) ? 12 : 0;
+  const half = bw / 2;
+  ctx.beginPath();
+  if (r > 0) ctx.roundRect(0, 0, total, total, r + half); else ctx.rect(0, 0, total, total);
+  ctx.closePath(); ctx.clip();
+  ctx.fillStyle = qrState.bg; ctx.fillRect(0, 0, total, total);
+  if (qrState.borderStyle !== 'none' && bw > 0) {
+    ctx.strokeStyle = qrState.borderColor; ctx.lineWidth = bw;
+    ctx.setLineDash(qrState.borderStyle === 'dashed' ? [8,4] : []);
+    if (r > 0) { ctx.beginPath(); ctx.roundRect(half, half, total-bw, total-bw, r); ctx.stroke(); }
+    else ctx.strokeRect(half, half, total-bw, total-bw);
+  }
+  const draw = src => {
+    const image = new Image();
+    image.onload = () => {
+      ctx.drawImage(image, bw+pad, bw+pad, QR_STAGE, QR_STAGE);
+      const today = new Date();
+      const def = `${String(today.getFullYear()).slice(2)}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}_QR Code`;
+      const fname = (document.getElementById('qr-filename')?.value.trim() || def).replace(/\.png$/i,'');
+      const a = document.createElement('a');
+      a.href = out.toDataURL('image/png'); a.download = fname + '.png'; a.click();
+    };
+    image.src = src;
+  };
+  if (canvas) draw(canvas.toDataURL('image/png'));
+  else if (img) draw(img.src);
 }
 
 // ── BOOT ──────────────────────────────────────────
