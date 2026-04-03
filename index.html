@@ -137,11 +137,14 @@
       el.className = 'msg show';
     }
 
+    const _r = new URLSearchParams(location.search).get('r');
+    const _redirect = _r === 'ads' ? '/ads.html' : '/app.html';
+
     const saved = localStorage.getItem('sb_session');
     if (saved) {
       try {
         const s = JSON.parse(saved);
-        if (s.access_token && s.expires_at > Date.now() / 1000) location.href = '/app.html';
+        if (s.access_token && s.expires_at > Date.now() / 1000) location.href = _redirect;
       } catch(e) { localStorage.removeItem('sb_session'); }
     }
 
@@ -167,7 +170,7 @@
           showMsg('이메일 또는 비밀번호가 올바르지 않습니다.');
         } else {
           localStorage.setItem('sb_session', JSON.stringify(data));
-          location.href = '/app.html';
+          location.href = _redirect;
         }
       } catch(e) {
         showMsg('네트워크 오류가 발생했습니다. 다시 시도해주세요.');

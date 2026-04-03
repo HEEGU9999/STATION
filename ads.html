@@ -615,7 +615,7 @@ let createData = {};
 // ── AUTH ─────────────────────────────────────────
 async function initAuth() {
   const { data } = await sb.auth.getSession();
-  if (!data.session) { location.href = '/'; return; }
+  if (!data.session) { location.href = '/?r=ads'; return; }
   currentUser = data.session.user;
   const email = currentUser.email || '';
   document.getElementById('user-email').textContent = email;
