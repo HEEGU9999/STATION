@@ -182,7 +182,6 @@
       align-items: center;
     }
 
-    /* 모바일 드로어 오버레이 */
     .sidebar-overlay {
       display: none;
       position: fixed;
@@ -214,7 +213,7 @@
     .page-breadcrumb span { color: var(--text); font-weight: 700; }
 
     .content {
-      padding: 24px 28px;
+      padding: 28px 32px;
       overflow-y: auto;
       flex: 1;
     }
@@ -224,8 +223,190 @@
       font-weight: 800;
       color: var(--text);
       letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    /* ── 뷰 전환 ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── 대시보드 ── */
+    .greeting {
+      margin-bottom: 28px;
+    }
+    .greeting-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .greeting-sub {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      width: fit-content;
+    }
+    .stat-badge.up { background: #dcfce7; color: #16a34a; }
+    .stat-badge.neutral { background: #f1f5f9; color: #64748b; }
+
+    .stat-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+    }
+
+    .section-card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 18px;
     }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-action {
+      font-size: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .section-action:hover { text-decoration: underline; }
+
+    /* 활동 리스트 */
+    .activity-list { display: flex; flex-direction: column; gap: 0; }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .activity-text {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: #d1d5db;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* 퀵 액션 */
+    .quick-list { display: flex; flex-direction: column; gap: 8px; }
+    .quick-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+    }
+    .quick-item:hover { border-color: var(--primary); background: var(--primary-light); }
+
+    .quick-icon {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .quick-item:hover .quick-icon { background: #d0dff0; }
+
+    .quick-text { flex: 1; }
+    .quick-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .quick-desc { font-size: 11px; color: var(--muted); }
+
+    .quick-arrow {
+      color: #d1d5db;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .quick-item:hover .quick-arrow { color: var(--primary); }
 
     /* ── QR 레이아웃 ── */
     .qr-layout {
@@ -235,7 +416,6 @@
       max-width: 1200px;
     }
 
-    /* 설정 패널 */
     .panel {
       flex: 0 0 640px;
       background: var(--surface);
@@ -376,7 +556,6 @@
     .ec-btn .desc { font-size: 12px; color: #ccc; }
     .ec-tip { font-size: 12px; color: #bbb; margin-top: 9px; line-height: 1.5; }
 
-    /* ── 미리보기 ── */
     .preview-panel {
       flex: 1;
       min-width: 0;
@@ -404,13 +583,10 @@
       align-self: flex-start;
     }
 
-    .qr-stage-wrap {
-      margin-bottom: 20px;
-    }
+    .qr-stage-wrap { margin-bottom: 20px; }
 
     #qr-stage {
-      width: 300px;
-      height: 300px;
+      width: 300px; height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -428,7 +604,7 @@
     #qr-inner canvas, #qr-inner img { display: block; }
 
     .dl-area {
-      width: 324px; /* qr-stage 300px + 12px*2 wrap padding */
+      width: 324px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -445,7 +621,7 @@
       font-size: 12px;
       outline: none;
     }
-    .filename-input::placeholder { color: #bbb; }
+    .filename-input::placeholder { color: #888; }
 
     .dl-btn {
       width: 100%;
@@ -462,10 +638,11 @@
     }
     .dl-btn:hover { background: var(--primary-hover); }
 
-    /* ── 반응형: 중간 화면 (사이드바 있는 상태) ── */
+    /* ── 반응형 ── */
     @media (max-width: 1200px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-grid { grid-template-columns: 1fr; }
       .panel { flex: 0 0 400px; }
-      .qr-layout { max-width: 100%; }
     }
 
     @media (max-width: 960px) {
@@ -478,7 +655,6 @@
       .preview-panel { max-width: 100%; width: 100%; position: static; }
     }
 
-    /* ── 반응형: 모바일 ── */
     @media (max-width: 768px) {
       body { flex-direction: column; }
 
@@ -493,31 +669,16 @@
       .sidebar.open { left: 0; }
 
       .mobile-topbar { display: flex; }
-
       .main { min-height: 0; flex: 1; }
-
       .topbar { display: none; }
-
       .content { padding: 16px; }
 
-      .qr-layout {
-        flex-direction: column;
-        max-width: 100%;
-      }
-
-      .panel {
-        flex: none;
-        width: 100%;
-      }
-
-      .preview-panel {
-        max-width: 100%;
-        width: 100%;
-        position: static;
-      }
-
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .qr-layout { flex-direction: column; max-width: 100%; }
+      .panel { flex: none; width: 100%; }
+      .preview-panel { max-width: 100%; width: 100%; position: static; }
       #qr-stage { width: 260px; height: 260px; }
-
       .dl-area { width: 284px; }
     }
   </style>
@@ -534,7 +695,6 @@
     </button>
   </div>
 
-  <!-- 사이드바 오버레이 -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <!-- 사이드바 -->
@@ -544,16 +704,27 @@
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-section-label">메뉴</div>
-      <a class="nav-item active" href="/app.html">
+      <div class="nav-section-label">메인</div>
+      <button class="nav-item active" data-view="dashboard" onclick="navigate('dashboard', this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1.5"/>
           <rect x="14" y="3" width="7" height="7" rx="1.5"/>
           <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        대시보드
+      </button>
+
+      <div class="nav-section-label" style="margin-top:10px;">도구</div>
+      <button class="nav-item" data-view="qr" onclick="navigate('qr', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
           <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor" stroke="none"/>
         </svg>
         QR 코드 생성기
-      </a>
+      </button>
     </nav>
 
     <div class="sidebar-bottom">
@@ -574,124 +745,230 @@
 
   <!-- 메인 -->
   <div class="main">
-    <div class="topbar">
-      <span class="page-breadcrumb">메뉴 › <span>QR 코드 생성기</span></span>
+    <div class="topbar" id="topbar">
+      <span class="page-breadcrumb" id="breadcrumb"><span>대시보드</span></span>
     </div>
 
     <div class="content">
-      <div class="page-title">QR 코드 생성기</div>
 
-      <div class="qr-layout">
+      <!-- ── 대시보드 뷰 ── -->
+      <div class="view active" id="view-dashboard">
 
-        <!-- 설정 패널 -->
-        <div class="panel">
-
-          <div class="sec-label">링크</div>
-          <div class="url-row">
-            <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
-            <button class="regen-inline" id="shorten-btn" onclick="shortenUrl()">링크 줄이기</button>
-            <button onclick="resetAndRegen()" title="초기화" style="padding:10px 13px;background:var(--primary-light);color:var(--primary);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;" onmouseover="this.style.background='#d6e4f0'" onmouseout="this.style.background='var(--primary-light)'">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            </button>
-            <button id="copy-url-btn" onclick="copyUrl()" title="복사" style="padding:10px 13px;background:var(--primary-light);color:var(--primary);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;" onmouseover="this.style.background='#d6e4f0'" onmouseout="this.style.background='var(--primary-light)'">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            </button>
-          </div>
-          <div style="margin-top:6px;">
-            <span id="short-result" style="font-size:12px; color:#e53e3e;"></span>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="sec-label">색상</div>
-          <div class="color-section">
-            <div>
-              <div class="field-label">QR 색상</div>
-              <div class="palette-row" id="fg-palette"></div>
-            </div>
-            <div>
-              <div class="field-label">배경 색상</div>
-              <div class="palette-row" id="bg-palette"></div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="sec-label">테두리</div>
-          <div class="field-label" style="margin-bottom:8px">스타일</div>
-          <div class="bstyle-row">
-            <button class="bstyle-btn active" onclick="setBorderStyle('none',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8"/></svg>없음
-            </button>
-            <button class="bstyle-btn" onclick="setBorderStyle('solid',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#073763" stroke-width="2"/></svg>실선
-            </button>
-            <button class="bstyle-btn" onclick="setBorderStyle('rounded',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="#e8e8e8" stroke="#073763" stroke-width="2"/></svg>둥근
-            </button>
-            <button class="bstyle-btn" onclick="setBorderStyle('dashed',this)">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#073763" stroke-width="2" stroke-dasharray="4 2"/></svg>점선
-            </button>
-          </div>
-
-          <div class="field-label">두께</div>
-          <div class="slider-row">
-            <input type="range" id="border-width" min="0" max="24" value="4" oninput="onSlider('border-width','bw-val');liveUpdate()">
-            <span class="slider-val" id="bw-val">4px</span>
-          </div>
-
-          <div class="field-label">여백</div>
-          <div class="slider-row">
-            <input type="range" id="padding" min="0" max="40" value="10" oninput="onSlider('padding','pad-val');liveUpdate()">
-            <span class="slider-val" id="pad-val">10px</span>
-          </div>
-
-          <div class="field-label">테두리 색상</div>
-          <div class="palette-row" id="border-palette"></div>
-
-          <div class="divider"></div>
-
-          <div class="sec-label">오류 정정 레벨</div>
-          <div class="ec-row">
-            <button class="ec-btn" onclick="setEC('L',this)"><span class="lv">L</span><span class="desc">7%</span></button>
-            <button class="ec-btn" onclick="setEC('M',this)"><span class="lv">M</span><span class="desc">15%</span></button>
-            <button class="ec-btn" onclick="setEC('Q',this)"><span class="lv">Q</span><span class="desc">25%</span></button>
-            <button class="ec-btn active" onclick="setEC('H',this)"><span class="lv">H★</span><span class="desc">30%</span></button>
-          </div>
-          <p class="ec-tip">★ H: 30% 손상·가려져도 인식 가능. 기본 권장.</p>
+        <div class="greeting">
+          <div class="greeting-name" id="greeting-name">안녕하세요</div>
+          <div class="greeting-sub" id="greeting-sub">오늘도 좋은 하루 되세요.</div>
         </div>
 
-        <!-- 미리보기 -->
-        <div class="preview-panel">
-          <div class="preview-card">
-            <div class="preview-title">미리보기</div>
-            <div class="qr-stage-wrap">
-              <div id="qr-stage">
-                <div id="qr-inner"><div id="qr-code"></div></div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="stat-label">생성한 QR</div>
+              <div class="stat-icon" style="background:#e8eef6;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#073763" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1"/>
+                  <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="#073763" stroke="none"/>
+                </svg>
               </div>
             </div>
-            <div class="dl-area">
-              <input class="filename-input" id="filename-input" type="text" placeholder="파일명 (기본: 날짜_QR Code)" />
-              <button class="dl-btn" onclick="download()">이미지 저장 (PNG)</button>
+            <div class="stat-value" id="stat-qr">—</div>
+            <div class="stat-badge neutral">이번 달</div>
+          </div>
+
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="stat-label">마지막 접속</div>
+              <div class="stat-icon" style="background:#fef9ec;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+            </div>
+            <div class="stat-value" style="font-size:18px;padding-top:6px;" id="stat-last">—</div>
+            <div class="stat-badge neutral">로그인 기준</div>
+          </div>
+
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="stat-label">도구</div>
+              <div class="stat-icon" style="background:#f0fdf4;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="stat-value">1</div>
+            <div class="stat-badge up">운영 중</div>
+          </div>
+
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="stat-label">계정 상태</div>
+              <div class="stat-icon" style="background:#eff6ff;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+            </div>
+            <div class="stat-value" style="font-size:18px;padding-top:6px;">활성</div>
+            <div class="stat-badge up">정상</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- 최근 활동 -->
+          <div class="section-card">
+            <div class="section-head">
+              <div class="section-title">최근 활동</div>
+            </div>
+            <div class="activity-list" id="activity-list">
+              <div class="activity-item">
+                <div class="activity-dot" style="background:#073763;"></div>
+                <div class="activity-text">로그인했습니다</div>
+                <div class="activity-time" id="login-time">방금</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot" style="background:#d1d5db;"></div>
+                <div class="activity-text">GU STATION에 오신 것을 환영합니다</div>
+                <div class="activity-time">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 빠른 이동 -->
+          <div class="section-card">
+            <div class="section-head">
+              <div class="section-title">바로가기</div>
+            </div>
+            <div class="quick-list">
+              <button class="quick-item" onclick="navigate('qr', document.querySelector('[data-view=qr]'))">
+                <div class="quick-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#073763" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="#073763" stroke="none"/>
+                  </svg>
+                </div>
+                <div class="quick-text">
+                  <div class="quick-name">QR 코드 생성기</div>
+                  <div class="quick-desc">URL을 QR 코드로 변환</div>
+                </div>
+                <svg class="quick-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
 
       </div>
+
+      <!-- ── QR 코드 뷰 ── -->
+      <div class="view" id="view-qr">
+        <div class="page-title">QR 코드 생성기</div>
+
+        <div class="qr-layout">
+          <!-- 설정 패널 -->
+          <div class="panel">
+
+            <div class="sec-label">링크</div>
+            <div class="url-row">
+              <input class="url-input" id="url-input" type="text" placeholder="https://example.com" value="https://example.com" />
+              <button class="regen-inline" id="shorten-btn" onclick="shortenUrl()">링크 줄이기</button>
+              <button onclick="resetAndRegen()" title="초기화" style="padding:10px 13px;background:var(--primary-light);color:var(--primary);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;" onmouseover="this.style.background='#d6e4f0'" onmouseout="this.style.background='var(--primary-light)'">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              </button>
+              <button id="copy-url-btn" onclick="copyUrl()" title="복사" style="padding:10px 13px;background:var(--primary-light);color:var(--primary);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;" onmouseover="this.style.background='#d6e4f0'" onmouseout="this.style.background='var(--primary-light)'">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+            <div style="margin-top:6px;">
+              <span id="short-result" style="font-size:12px; color:#e53e3e;"></span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="sec-label">색상</div>
+            <div class="color-section">
+              <div>
+                <div class="field-label">QR 색상</div>
+                <div class="palette-row" id="fg-palette"></div>
+              </div>
+              <div>
+                <div class="field-label">배경 색상</div>
+                <div class="palette-row" id="bg-palette"></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="sec-label">테두리</div>
+            <div class="field-label" style="margin-bottom:8px">스타일</div>
+            <div class="bstyle-row">
+              <button class="bstyle-btn active" onclick="setBorderStyle('none',this)">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8"/></svg>없음
+              </button>
+              <button class="bstyle-btn" onclick="setBorderStyle('solid',this)">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#073763" stroke-width="2"/></svg>실선
+              </button>
+              <button class="bstyle-btn" onclick="setBorderStyle('rounded',this)">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="#e8e8e8" stroke="#073763" stroke-width="2"/></svg>둥근
+              </button>
+              <button class="bstyle-btn" onclick="setBorderStyle('dashed',this)">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="#e8e8e8" stroke="#073763" stroke-width="2" stroke-dasharray="4 2"/></svg>점선
+              </button>
+            </div>
+
+            <div class="field-label">두께</div>
+            <div class="slider-row">
+              <input type="range" id="border-width" min="0" max="24" value="4" oninput="onSlider('border-width','bw-val');liveUpdate()">
+              <span class="slider-val" id="bw-val">4px</span>
+            </div>
+
+            <div class="field-label">여백</div>
+            <div class="slider-row">
+              <input type="range" id="padding" min="0" max="40" value="10" oninput="onSlider('padding','pad-val');liveUpdate()">
+              <span class="slider-val" id="pad-val">10px</span>
+            </div>
+
+            <div class="field-label">테두리 색상</div>
+            <div class="palette-row" id="border-palette"></div>
+
+            <div class="divider"></div>
+
+            <div class="sec-label">오류 정정 레벨</div>
+            <div class="ec-row">
+              <button class="ec-btn" onclick="setEC('L',this)"><span class="lv">L</span><span class="desc">7%</span></button>
+              <button class="ec-btn" onclick="setEC('M',this)"><span class="lv">M</span><span class="desc">15%</span></button>
+              <button class="ec-btn" onclick="setEC('Q',this)"><span class="lv">Q</span><span class="desc">25%</span></button>
+              <button class="ec-btn active" onclick="setEC('H',this)"><span class="lv">H★</span><span class="desc">30%</span></button>
+            </div>
+            <p class="ec-tip">★ H: 30% 손상·가려져도 인식 가능. 기본 권장.</p>
+          </div>
+
+          <!-- 미리보기 -->
+          <div class="preview-panel">
+            <div class="preview-card">
+              <div class="preview-title">미리보기</div>
+              <div class="qr-stage-wrap">
+                <div id="qr-stage">
+                  <div id="qr-inner"><div id="qr-code"></div></div>
+                </div>
+              </div>
+              <div class="dl-area">
+                <input class="filename-input" id="filename-input" type="text" placeholder="파일명 (기본: 날짜_QR Code)" />
+                <button class="dl-btn" onclick="download()">이미지 저장 (PNG)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
 <script>
-  const STAGE_SIZE = 300;
-  const QR_SIZE    = 300;
-
-  const DEFAULTS = {
-    fg: '#000000', bg: '#ffffff', borderColor: '#000000',
-    borderStyle: 'none', ec: 'H',
-    borderWidth: 4, padding: 10
-  };
-
-  // 인증 확인
+  /* ── 인증 ── */
   const saved = localStorage.getItem('sb_session');
   if (!saved) {
     location.href = '/';
@@ -704,18 +981,64 @@
         const email = s.user?.email || '';
         document.getElementById('user-email').textContent = email;
         document.getElementById('user-avatar').textContent = email.charAt(0).toUpperCase();
+
+        const name = email.split('@')[0];
+        document.getElementById('greeting-name').textContent = `안녕하세요, ${name}님`;
+
+        const now = new Date();
+        const h = now.getHours();
+        const sub = h < 12 ? '좋은 아침이에요.' : h < 18 ? '좋은 오후예요.' : '좋은 저녁이에요.';
+        document.getElementById('greeting-sub').textContent = sub;
+
+        const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('login-time').textContent = timeStr;
+        document.getElementById('stat-last').textContent = now.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+
+        // QR 생성 카운트
+        const qrCount = parseInt(localStorage.getItem('qr_count') || '0');
+        document.getElementById('stat-qr').textContent = qrCount;
       }
     } catch(e) { localStorage.removeItem('sb_session'); location.href = '/'; }
   }
 
   function logout() { localStorage.removeItem('sb_session'); location.href = '/'; }
-
   function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebar-overlay').classList.toggle('open');
   }
 
+  /* ── 뷰 전환 ── */
+  const VIEW_LABELS = { dashboard: '대시보드', qr: 'QR 코드 생성기' };
+  const VIEW_BREADCRUMB = { dashboard: '<span>대시보드</span>', qr: '도구 › <span>QR 코드 생성기</span>' };
+
+  function navigate(viewId, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    document.getElementById('breadcrumb').innerHTML = VIEW_BREADCRUMB[viewId] || '<span>' + viewId + '</span>';
+
+    if (viewId === 'qr') {
+      setTimeout(() => { if (!qrInitialized) { initQR(); qrInitialized = true; } }, 50);
+    }
+
+    // 모바일 사이드바 닫기
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+
+  /* ── QR ── */
+  const STAGE_SIZE = 300;
+  const QR_SIZE    = 300;
+
+  const DEFAULTS = {
+    fg: '#000000', bg: '#ffffff', borderColor: '#000000',
+    borderStyle: 'none', ec: 'H',
+    borderWidth: 4, padding: 10
+  };
+
   let shortUrl = '';
+  let qrInitialized = false;
   const state = { ...DEFAULTS };
   const RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
 
@@ -755,9 +1078,14 @@
     wrap.appendChild(plusBtn);
   }
 
-  buildPalette('fg-palette',     DEFAULTS.fg,          c => state.fg = c);
-  buildPalette('bg-palette',     DEFAULTS.bg,          c => state.bg = c);
-  buildPalette('border-palette', DEFAULTS.borderColor, c => state.borderColor = c);
+  function initQR() {
+    buildPalette('fg-palette',     DEFAULTS.fg,          c => state.fg = c);
+    buildPalette('bg-palette',     DEFAULTS.bg,          c => state.bg = c);
+    buildPalette('border-palette', DEFAULTS.borderColor, c => state.borderColor = c);
+    document.getElementById('url-input').addEventListener('input', liveUpdate);
+    document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') liveUpdate(); });
+    renderQR();
+  }
 
   function onSlider(id, valId) {
     document.getElementById(valId).textContent = document.getElementById(id).value + 'px';
@@ -775,7 +1103,6 @@
     liveUpdate();
   }
 
-  /* 재생성: 모든 설정을 초기값으로 리셋 후 재생성 */
   function clearShortUrl() {
     shortUrl = '';
     document.getElementById('short-result').textContent = '';
@@ -784,27 +1111,17 @@
   function resetAndRegen() {
     clearShortUrl();
     document.getElementById('url-input').value = 'https://example.com';
-    // state 리셋
     Object.assign(state, DEFAULTS);
-
-    // 슬라이더 리셋
     document.getElementById('border-width').value = DEFAULTS.borderWidth;
     document.getElementById('padding').value = DEFAULTS.padding;
     document.getElementById('bw-val').textContent = DEFAULTS.borderWidth + 'px';
     document.getElementById('pad-val').textContent = DEFAULTS.padding + 'px';
-
-    // 테두리 스타일 버튼 리셋 (첫 번째 = '없음')
     document.querySelectorAll('.bstyle-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-
-    // EC 버튼 리셋 (마지막 = 'H')
     const ecBtns = document.querySelectorAll('.ec-btn');
     ecBtns.forEach((b, i) => b.classList.toggle('active', i === ecBtns.length - 1));
-
-    // 팔레트 선택 리셋
     resetPaletteSelection('fg-palette',     DEFAULTS.fg);
     resetPaletteSelection('bg-palette',     DEFAULTS.bg);
     resetPaletteSelection('border-palette', DEFAULTS.borderColor);
-
     liveUpdate();
   }
 
@@ -867,7 +1184,6 @@
     const r = (state.borderStyle === 'rounded' && bw > 0) ? 12 : 0;
     const half = bw / 2;
 
-    // 둥근 모서리 클리핑
     ctx.beginPath();
     if (r > 0) ctx.roundRect(0, 0, total, total, r + half);
     else ctx.rect(0, 0, total, total);
@@ -899,6 +1215,10 @@
         a.href = out.toDataURL('image/png');
         a.download = fname + '.png';
         a.click();
+
+        // QR 생성 카운트 증가
+        const cnt = parseInt(localStorage.getItem('qr_count') || '0') + 1;
+        localStorage.setItem('qr_count', cnt);
       };
       image.src = src;
     };
@@ -936,14 +1256,12 @@
     if (!url) return;
     const btn = document.getElementById('copy-url-btn');
     navigator.clipboard.writeText(url).then(() => {
-      btn.textContent = '복사됨!';
-      setTimeout(() => btn.textContent = '복사', 1500);
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+      setTimeout(() => {
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+      }, 1500);
     });
   }
-
-  document.getElementById('url-input').addEventListener('input', liveUpdate);
-  document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') liveUpdate(); });
-  renderQR();
 </script>
 </body>
 </html>
