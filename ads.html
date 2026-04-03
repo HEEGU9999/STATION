@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>광고 관리자 — Menuit Ads</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: #0a0a0a;
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: #0d0d0d;
+      border-right: 1px solid #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #fff;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .sidebar-logo span { color: #333; font-weight: 400; font-size: 11px; letter-spacing: 0.02em; display: block; margin-top: 3px; }
+    .sidebar-section { padding: 16px 12px 8px; flex: 1; }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #3a3a3a;
+      text-transform: uppercase;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: inherit;
+      text-align: left;
+    }
+    .nav-item:hover { background: #141414; color: #ccc; }
+    .nav-item.active { background: #1a1a1a; color: #fff; }
+    .nav-item svg { opacity: 0.6; flex-shrink: 0; }
+    .nav-item.active svg { opacity: 1; }
+    .sidebar-bottom {
+      padding: 12px;
+      border-top: 1px solid #1a1a1a;
+    }
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .user-chip:hover { background: #141414; }
+    .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #888;
+      flex-shrink: 0;
+    }
+    .user-email {
+      font-size: 12px;
+      color: #555;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    /* ─── Main ─── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .topbar {
+      height: 56px;
+      min-height: 56px;
+      border-bottom: 1px solid #1a1a1a;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 12px;
+      background: #0a0a0a;
+    }
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+    }
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+    }
+
+    /* ─── Buttons ─── */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: #fff; color: #000; }
+    .btn-primary:hover { background: #e8e8e8; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: transparent; color: #888; border: 1px solid #1f1f1f; }
+    .btn-secondary:hover { border-color: #333; color: #ccc; }
+    .btn-ghost { background: transparent; color: #666; padding: 6px 10px; }
+    .btn-ghost:hover { color: #ccc; background: #141414; }
+    .btn-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
+    .btn-danger:hover { background: rgba(239,68,68,0.15); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    /* ─── Cards ─── */
+    .card {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 14px;
+      padding: 22px 24px;
+    }
+
+    /* ─── Metric cards ─── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 14px;
+      padding: 20px 22px;
+    }
+    .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .metric-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric-sub { font-size: 12px; font-weight: 500; color: #3a3a3a; }
+    .metric-sub.up { color: #3ddc84; }
+
+    /* ─── Table ─── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      font-size: 11px;
+      font-weight: 700;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #1a1a1a;
+      white-space: nowrap;
+    }
+    td {
+      padding: 13px 14px;
+      font-size: 13.5px;
+      color: #ccc;
+      border-bottom: 1px solid #141414;
+      white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #0f0f0f; cursor: pointer; }
+    .camp-name { font-weight: 600; color: #f0f0f0; }
+
+    /* ─── Status badges ─── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .badge-active { background: rgba(61,220,132,0.1); color: #3ddc84; }
+    .badge-active::before { background: #3ddc84; }
+    .badge-paused { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    .badge-paused::before { background: #fbbf24; }
+    .badge-draft { background: rgba(102,102,102,0.15); color: #666; }
+    .badge-draft::before { background: #444; }
+    .badge-completed { background: rgba(165,180,252,0.1); color: #a5b4fc; }
+    .badge-completed::before { background: #a5b4fc; }
+
+    /* ─── 구좌 badge ─── */
+    .slot-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .slot-C { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+    .slot-D { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); }
+
+    /* ─── Section header ─── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .section-title { font-size: 15px; font-weight: 700; color: #fff; }
+
+    /* ─── Chart grid ─── */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .chart-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── Modal ─── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 100;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+    }
+    .modal {
+      background: #111;
+      border: 1px solid #1f1f1f;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 540px;
+      padding: 32px;
+      position: relative;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    .modal-desc { font-size: 13px; color: #444; margin-bottom: 28px; }
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: #222; color: #ccc; }
+
+    /* ─── Form elements ─── */
+    .field { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: #0d0d0d;
+      border: 1px solid #1f1f1f;
+      border-radius: 10px;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus { border-color: #333; }
+    input::placeholder { color: #2a2a2a; }
+    select option { background: #111; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ─── 구좌 selector ─── */
+    .slot-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .slot-option {
+      border: 1.5px solid #1f1f1f;
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: transparent;
+      font-family: inherit;
+      text-align: left;
+    }
+    .slot-option:hover { border-color: #333; }
+    .slot-option.selected-C { border-color: #3b82f6; background: rgba(59,130,246,0.06); }
+    .slot-option.selected-D { border-color: #a855f7; background: rgba(168,85,247,0.06); }
+    .slot-option-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .slot-option-name { font-size: 14px; font-weight: 800; color: #fff; }
+    .slot-option-desc { font-size: 12px; color: #444; line-height: 1.5; }
+    .slot-option-when { font-size: 11px; font-weight: 600; margin-top: 6px; }
+    .slot-C .slot-option-when { color: #60a5fa; }
+    .slot-D .slot-option-when { color: #c084fc; }
+
+    /* ─── Tags ─── */
+    .tag-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+    .tag {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #1f1f1f;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tag:hover { border-color: #333; color: #ccc; }
+    .tag.selected { background: #1a1a1a; border-color: #3a3a3a; color: #fff; }
+
+    /* ─── Steps ─── */
+    .steps { display: flex; align-items: center; margin-bottom: 28px; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #333; }
+    .step.active { color: #fff; }
+    .step.done { color: #3ddc84; }
+    .step-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step.active .step-dot { border-color: #fff; color: #fff; }
+    .step.done .step-dot { border-color: #3ddc84; color: #3ddc84; }
+    .step-line { flex: 1; height: 1px; background: #1f1f1f; margin: 0 10px; }
+
+    /* ─── 예산 미리보기 ─── */
+    .budget-preview {
+      background: #0d0d0d;
+      border: 1px solid #1f1f1f;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .bp-item { text-align: center; }
+    .bp-label { font-size: 10px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .bp-value { font-size: 14px; font-weight: 700; color: #ccc; }
+
+    /* ─── Empty state ─── */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state-icon { font-size: 36px; margin-bottom: 14px; opacity: 0.25; }
+    .empty-state-title { font-size: 15px; font-weight: 700; color: #444; margin-bottom: 6px; }
+    .empty-state-desc { font-size: 13px; color: #2e2e2e; margin-bottom: 24px; }
+
+    /* ─── Filter tabs ─── */
+    .tab-bar {
+      display: flex;
+      gap: 2px;
+      background: #0d0d0d;
+      border-radius: 10px;
+      padding: 3px;
+      width: fit-content;
+      margin-bottom: 18px;
+    }
+    .tab-btn {
+      padding: 7px 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { background: #1a1a1a; color: #fff; }
+
+    /* ─── Detail ─── */
+    .detail-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-stat {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #444;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: color 0.15s;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .back-btn:hover { color: #aaa; }
+
+    /* ─── Toast ─── */
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #f0f0f0;
+      z-index: 200;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1f1f1f; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    MENUIT ADS
+    <span>광고 관리자 센터</span>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">메뉴</div>
+    <button class="nav-item" id="nav-dashboard" onclick="navigate('dashboard')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      대시보드
+    </button>
+    <button class="nav-item" id="nav-campaigns" onclick="navigate('campaigns')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/>
+        <path d="M17.586 3.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+      </svg>
+      캠페인
+    </button>
+    <button class="nav-item" id="nav-reports" onclick="navigate('reports')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      보고서
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="user-chip" onclick="handleLogout()">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-email" id="user-email">로딩 중...</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">대시보드</div>
+    <div id="topbar-actions"></div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span>✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- Modal -->
+<div id="modal-container"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────
+const SUPABASE_URL = 'https://blhjftuqttiaojinpptl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaGpmdHVxdHRpYW9qaW5wcHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjc5NDgsImV4cCI6MjA4OTkwMzk0OH0.j4nsoSLtbMG_7dCCyxszQxKWgLbstGAwiaGWjNnoeaU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── CONSTANTS ────────────────────────────────────
+// 구좌별 대당 일 노출 추정
+const SLOT_IMP = { C: 2, D: 20 };   // C: 주문완료 횟수/일, D: 대기중 노출/일
+const REACH_RATIO = 2.5;             // 테이블 평균 인원 (실측 기반)
+const REGIONS = ['서울','경기','인천','부산','대구','광주','대전','울산','강원','충북','충남','전북','전남','경북','경남','제주'];
+const CATEGORIES = ['주류/음료','패스트푸드','한식','일식','중식','분식','카페/디저트','치킨/피자','고기구이','술집/바'];
+
+// ── STATE ────────────────────────────────────────
+let campaigns = [];
+let currentUser = null;
+let selectedCampaignId = null;
+let charts = {};
+let campFilter = 'all';
+let createStep = 1;
+let createData = {};
+
+// ── AUTH ─────────────────────────────────────────
+async function initAuth() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) { location.href = '/login.html'; return; }
+  currentUser = data.session.user;
+  const email = currentUser.email || '';
+  document.getElementById('user-email').textContent = email;
+  document.getElementById('user-avatar').textContent = (email[0] || 'U').toUpperCase();
+  await loadCampaigns();
+  navigate('dashboard');
+}
+
+async function handleLogout() {
+  await sb.auth.signOut();
+  location.href = '/login.html';
+}
+
+// ── DATA ─────────────────────────────────────────
+const STORE_KEY = 'menuit_ad_campaigns_v2';
+
+function saveCampaigns() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(campaigns));
+}
+
+async function loadCampaigns() {
+  try {
+    const { data, error } = await sb
+      .from('campaigns')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    if (!error && data && data.length) { campaigns = data; return; }
+  } catch(e) {}
+  const stored = localStorage.getItem(STORE_KEY);
+  campaigns = stored ? JSON.parse(stored) : [];
+}
+
+async function createCampaign(payload) {
+  const local = {
+    id: 'c_' + Date.now(),
+    user_id: currentUser.id,
+    created_at: new Date().toISOString(),
+    ...payload,
+  };
+  try {
+    const { data, error } = await sb.from('campaigns').insert([{
+      user_id: currentUser.id, ...payload,
+    }]).select().single();
+    if (!error && data) { campaigns.unshift(data); return; }
+  } catch(e) {}
+  campaigns.unshift(local);
+  saveCampaigns();
+}
+
+async function updateCampaignStatus(id, status) {
+  campaigns = campaigns.map(c => c.id === id ? { ...c, status } : c);
+  try { await sb.from('campaigns').update({ status }).eq('id', id); } catch(e) {}
+  saveCampaigns();
+}
+
+async function deleteCampaign(id) {
+  campaigns = campaigns.filter(c => c.id !== id);
+  try { await sb.from('campaigns').delete().eq('id', id); } catch(e) {}
+  saveCampaigns();
+}
+
+// ── ANALYTICS (CPT/CPM 기반) ─────────────────────
+/**
+ * 캠페인 기간(일수) 계산
+ */
+function getCampaignDays(c) {
+  if (!c.start_date) return 0;
+  const start = new Date(c.start_date);
+  const end = c.end_date ? new Date(c.end_date) : new Date();
+  return Math.max(0, Math.ceil((end - start) / 86400000));
+}
+
+/**
+ * 노출 추정 = 태블릿 수 × 기간(일) × 구좌별 일노출
+ * 약간의 랜덤 변동(±15%)을 seed 기반으로 적용
+ */
+function estimateImpressions(c) {
+  const tablets = c.tablets || 0;
+  const days    = getCampaignDays(c);
+  const rate    = SLOT_IMP[c.slot] || SLOT_IMP.D;
+  const seed    = (tablets + days) % 7;
+  const variance = 0.85 + seed * 0.05;
+  return Math.floor(tablets * days * rate * variance);
+}
+
+/**
+ * 도달 인원 추정 = 노출 × 테이블 평균 인원
+ */
+function estimateReach(c) {
+  return Math.floor(estimateImpressions(c) * REACH_RATIO);
+}
+
+/**
+ * CPM = 계약금액 / (노출 / 1000)
+ */
+function calcCPM(c) {
+  const imp = estimateImpressions(c);
+  if (!imp || !c.total_budget) return 0;
+  return Math.round(c.total_budget / (imp / 1000));
+}
+
+/**
+ * CPT 단가 = 계약금액 / 태블릿 수 (월 기준)
+ * total_budget / tablets = 대당 총 단가
+ */
+function calcCPT(c) {
+  if (!c.tablets || !c.total_budget) return 0;
+  const months = Math.max(1, getCampaignDays(c) / 30);
+  return Math.round(c.total_budget / c.tablets / months);
+}
+
+/**
+ * 일별 추이 데이터 (최근 N일)
+ */
+function getDailyTrend(c, days = 14) {
+  if (!c.start_date || c.status !== 'active') return [];
+  const start = new Date(c.start_date);
+  const today = new Date();
+  const tablets = c.tablets || 0;
+  const rate    = SLOT_IMP[c.slot] || SLOT_IMP.D;
+  const out = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    if (d < start) continue;
+    const seed = d.getDate() + d.getMonth() * 31;
+    const v = 0.80 + (seed % 9) * 0.04;
+    const imp   = Math.floor(tablets * rate * v);
+    const reach = Math.floor(imp * REACH_RATIO);
+    out.push({
+      date: d.toLocaleDateString('ko', { month: 'short', day: 'numeric' }),
+      imp, reach,
+    });
+  }
+  return out;
+}
+
+function sumCampaigns(list) {
+  return list.reduce((acc, c) => {
+    acc.impressions += estimateImpressions(c);
+    acc.reach       += estimateReach(c);
+    acc.budget      += (c.total_budget || 0);
+    acc.tablets     += (c.tablets || 0);
+    return acc;
+  }, { impressions: 0, reach: 0, budget: 0, tablets: 0 });
+}
+
+// ── FORMAT ────────────────────────────────────────
+function fmtNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 10000)   return Math.round(n / 1000) + 'K';
+  if (n >= 1000)    return (n / 1000).toFixed(1) + 'K';
+  return (+n).toLocaleString();
+}
+function fmtMoney(n) { return '₩' + (+n).toLocaleString(); }
+function fmtWon(n)   { return Math.round(n).toLocaleString() + '원'; }
+
+// ── TOAST ─────────────────────────────────────────
+let _toastTimer;
+function showToast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  const el = document.getElementById('toast');
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── NAVIGATION ────────────────────────────────────
+function navigate(view, params = {}) {
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e) {} });
+  charts = {};
+  ['dashboard','campaigns','reports'].forEach(v => {
+    document.getElementById('nav-' + v)?.classList.toggle('active', v === view);
+  });
+  switch (view) {
+    case 'dashboard':       renderDashboard(); break;
+    case 'campaigns':       renderCampaigns(); break;
+    case 'reports':         renderReports(); break;
+    case 'campaign-detail': renderCampaignDetail(params.id); break;
+  }
+}
+
+// ── DASHBOARD ─────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('topbar-title').textContent = '대시보드';
+  document.getElementById('topbar-actions').innerHTML = '';
+
+  const active = campaigns.filter(c => c.status === 'active');
+  const totals = sumCampaigns(active);
+  const avgCPM = totals.impressions
+    ? Math.round(totals.budget / (totals.impressions / 1000))
+    : 0;
+
+  // 14일 추이 (활성 전체 합산)
+  const labels = [], impData = [], reachData = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('ko', { month: 'short', day: 'numeric' }));
+    let imp = 0, reach = 0;
+    active.forEach(c => {
+      if (!c.start_date || new Date(c.start_date) > d) return;
+      const seed = d.getDate() + d.getMonth() * 31;
+      const v = 0.80 + (seed % 9) * 0.04;
+      const rate = SLOT_IMP[c.slot] || SLOT_IMP.D;
+      const ii = Math.floor((c.tablets || 0) * rate * v);
+      imp   += ii;
+      reach += Math.floor(ii * REACH_RATIO);
+    });
+    impData.push(imp); reachData.push(reach);
+  }
+
+  const recent = campaigns.slice(0, 5);
+  const statusCount = ['active','paused','draft','completed'].map(s => campaigns.filter(c => c.status === s).length);
+
+  document.getElementById('content').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">집행 매장 수 (활성)</div>
+        <div class="metric-value">${totals.tablets.toLocaleString()}<span style="font-size:14px;color:#444;font-weight:500"> 대</span></div>
+        <div class="metric-sub ${active.length ? 'up' : ''}">활성 캠페인 ${active.length}개</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">노출 추정</div>
+        <div class="metric-value">${fmtNum(totals.impressions)}</div>
+        <div class="metric-sub">도달 인원 추정 ${fmtNum(totals.reach)}명</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">평균 CPM</div>
+        <div class="metric-value">${avgCPM ? fmtWon(avgCPM) : '—'}</div>
+        <div class="metric-sub">계약금액 / 노출 1,000회 기준</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">총 계약금액</div>
+        <div class="metric-value">${fmtMoney(totals.budget)}</div>
+        <div class="metric-sub">활성 캠페인 기준</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <div class="chart-title">노출 / 도달 인원 추이 (최근 14일)</div>
+        <canvas id="ch-trend" height="170"></canvas>
+      </div>
+      <div class="card">
+        <div class="chart-title">캠페인 상태 분포</div>
+        <canvas id="ch-status" height="170"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">최근 캠페인</div>
+        <button class="btn btn-secondary btn-sm" onclick="navigate('campaigns')">전체 보기</button>
+      </div>
+      ${recent.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-state-icon">📢</div>
+          <div class="empty-state-title">캠페인이 없습니다</div>
+          <div class="empty-state-desc">첫 번째 광고 캠페인을 만들어보세요</div>
+          <button class="btn btn-primary" onclick="navigate('campaigns')">캠페인 만들기</button>
+        </div>
+      ` : `
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>캠페인명</th><th>구좌</th><th>상태</th>
+              <th>매장 수</th><th>노출 추정</th><th>도달 인원</th><th>CPM</th>
+            </tr></thead>
+            <tbody>
+              ${recent.map(c => `
+                <tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
+                  <td><div class="camp-name">${escHtml(c.name)}</div></td>
+                  <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
+                  <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+                  <td>${(c.tablets||0).toLocaleString()}대</td>
+                  <td>${fmtNum(estimateImpressions(c))}</td>
+                  <td>${fmtNum(estimateReach(c))}명</td>
+                  <td>${calcCPM(c) ? fmtWon(calcCPM(c)) : '—'}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  `;
+
+  // 추이 차트
+  const ctx1 = document.getElementById('ch-trend')?.getContext('2d');
+  if (ctx1) charts.trend = new Chart(ctx1, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'노출 추정', data:impData, borderColor:'#ffffff', backgroundColor:'rgba(255,255,255,0.04)', borderWidth:2, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
+      { label:'도달 인원', data:reachData, borderColor:'#3ddc84', backgroundColor:'rgba(61,220,132,0.04)', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
+    ]},
+    options: {
+      responsive:true,
+      plugins:{ legend:{ labels:{ color:'#555', font:{size:11}, boxWidth:10, boxHeight:10 }}},
+      scales:{
+        x:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11},maxTicksLimit:7} },
+        y:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11},callback:v=>fmtNum(v)} },
+      },
+      interaction:{ intersect:false, mode:'index' },
+    }
+  });
+
+  // 상태 도넛
+  const ctx2 = document.getElementById('ch-status')?.getContext('2d');
+  if (ctx2) charts.status = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['활성','일시정지','초안','완료'],
+      datasets: [{ data: statusCount, backgroundColor:['rgba(61,220,132,0.8)','rgba(251,191,36,0.8)','rgba(80,80,80,0.5)','rgba(165,180,252,0.8)'], borderWidth:0 }],
+    },
+    options: {
+      responsive:true, cutout:'68%',
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#555', font:{size:11}, padding:12, boxWidth:10, boxHeight:10 }}},
+    }
+  });
+}
+
+// ── CAMPAIGNS ─────────────────────────────────────
+function renderCampaigns() {
+  document.getElementById('topbar-title').textContent = '캠페인';
+  document.getElementById('topbar-actions').innerHTML = `
+    <button class="btn btn-primary" onclick="showCreateModal()">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      캠페인 만들기
+    </button>`;
+
+  const counts = { all: campaigns.length };
+  ['active','paused','draft','completed'].forEach(s => { counts[s] = campaigns.filter(c => c.status === s).length; });
+  const filtered = campFilter === 'all' ? campaigns : campaigns.filter(c => c.status === campFilter);
+
+  document.getElementById('content').innerHTML = `
+    <div class="tab-bar">
+      ${[['all','전체'],['active','활성'],['paused','일시정지'],['draft','초안']].map(([v,l]) => `
+        <button class="tab-btn ${campFilter===v?'active':''}" onclick="setCampFilter('${v}')">${l} (${counts[v]})</button>
+      `).join('')}
+    </div>
+    <div class="card">
+      ${filtered.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-state-icon">📢</div>
+          <div class="empty-state-title">${campFilter==='all'?'캠페인이 없습니다':'해당 캠페인이 없습니다'}</div>
+          <div class="empty-state-desc">새 캠페인을 만들어 광고를 시작해보세요</div>
+          ${campFilter==='all'?'<button class="btn btn-primary" onclick="showCreateModal()">첫 캠페인 만들기</button>':''}
+        </div>
+      ` : `
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>캠페인명</th><th>구좌</th><th>상태</th>
+              <th>매장 수</th><th>기간</th><th>노출 추정</th>
+              <th>도달 인원</th><th>CPM</th><th>계약금액</th><th></th>
+            </tr></thead>
+            <tbody>
+              ${filtered.map(c => {
+                const period = c.start_date
+                  ? c.start_date + (c.end_date ? ' ~ ' + c.end_date : ' ~')
+                  : '-';
+                return `<tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
+                  <td><div class="camp-name">${escHtml(c.name)}</div></td>
+                  <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
+                  <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+                  <td>${(c.tablets||0).toLocaleString()}대</td>
+                  <td style="font-size:12px;color:#444">${period}</td>
+                  <td>${fmtNum(estimateImpressions(c))}</td>
+                  <td>${fmtNum(estimateReach(c))}명</td>
+                  <td>${calcCPM(c) ? fmtWon(calcCPM(c)) : '—'}</td>
+                  <td>${fmtMoney(c.total_budget||0)}</td>
+                  <td onclick="event.stopPropagation()" style="width:1px">
+                    <div style="display:flex;gap:4px;padding-right:4px">
+                      ${c.status==='active'
+                        ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickStatus('${c.id}','paused')">정지</button>`
+                        : `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickStatus('${c.id}','active')">활성화</button>`}
+                      <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();confirmDelete('${c.id}')">삭제</button>
+                    </div>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>`;
+}
+
+function setCampFilter(f) { campFilter = f; renderCampaigns(); }
+
+async function quickStatus(id, status) {
+  await updateCampaignStatus(id, status);
+  renderCampaigns();
+  showToast(status === 'active' ? '캠페인이 활성화되었습니다.' : '캠페인이 일시정지되었습니다.');
+}
+
+async function confirmDelete(id) {
+  const c = campaigns.find(x => x.id === id);
+  if (!confirm(`"${c?.name}" 캠페인을 삭제하시겠습니까?`)) return;
+  await deleteCampaign(id);
+  renderCampaigns();
+  showToast('캠페인이 삭제되었습니다.');
+}
+
+// ── CAMPAIGN DETAIL ───────────────────────────────
+function renderCampaignDetail(id) {
+  const c = campaigns.find(x => x.id === id);
+  if (!c) { navigate('campaigns'); return; }
+  selectedCampaignId = id;
+  document.getElementById('topbar-title').textContent = c.name;
+  document.getElementById('topbar-actions').innerHTML = `
+    <div style="display:flex;gap:8px">
+      ${c.status==='active'
+        ? `<button class="btn btn-secondary btn-sm" onclick="detailStatus('paused')">일시정지</button>`
+        : `<button class="btn btn-secondary btn-sm" onclick="detailStatus('active')">활성화</button>`}
+      <button class="btn btn-danger btn-sm" onclick="detailDelete()">삭제</button>
+    </div>`;
+
+  const trend = getDailyTrend(c, 14);
+  const days  = getCampaignDays(c);
+  const cpm   = calcCPM(c);
+  const cpt   = calcCPT(c);
+  const t     = c.targeting || {};
+
+  document.getElementById('content').innerHTML = `
+    <button class="back-btn" onclick="navigate('campaigns')">← 캠페인 목록</button>
+
+    <div class="detail-stats">
+      <div class="detail-stat">
+        <div class="metric-label">구좌</div>
+        <div style="margin-top:10px"><span class="slot-badge slot-${c.slot||'D'}" style="font-size:13px;padding:4px 12px">${c.slot||'D'}구좌</span></div>
+      </div>
+      <div class="detail-stat">
+        <div class="metric-label">상태</div>
+        <div style="margin-top:10px"><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></div>
+      </div>
+      <div class="detail-stat">
+        <div class="metric-label">집행 매장 수</div>
+        <div class="metric-value" style="font-size:22px;margin-top:8px">${(c.tablets||0).toLocaleString()}<span style="font-size:13px;color:#444"> 대</span></div>
+      </div>
+      <div class="detail-stat">
+        <div class="metric-label">노출 추정</div>
+        <div class="metric-value" style="font-size:22px;margin-top:8px">${fmtNum(estimateImpressions(c))}</div>
+        <div style="font-size:11px;color:#2a2a2a;margin-top:4px">${days}일 기준</div>
+      </div>
+      <div class="detail-stat">
+        <div class="metric-label">도달 인원 추정</div>
+        <div class="metric-value" style="font-size:22px;margin-top:8px">${fmtNum(estimateReach(c))}<span style="font-size:13px;color:#444"> 명</span></div>
+        <div style="font-size:11px;color:#2a2a2a;margin-top:4px">노출 × 2.5명 기준</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="chart-title">일별 노출 / 도달 인원 추이 (최근 14일)</div>
+      ${trend.length ? `<canvas id="ch-detail" height="160"></canvas>` : `
+        <div style="text-align:center;padding:40px;color:#333;font-size:13px">
+          ${c.status === 'active' ? '데이터 집계 중...' : '활성 상태일 때 추이가 표시됩니다'}
+        </div>
+      `}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:18px">캠페인 정보</div>
+        ${infoRow('구좌', `${c.slot||'D'}구좌 — ${slotDesc(c.slot)}`)}
+        ${infoRow('집행 태블릿', `${(c.tablets||0).toLocaleString()}대`)}
+        ${infoRow('계약금액', fmtMoney(c.total_budget||0))}
+        ${infoRow('집행 기간', days + '일')}
+        ${infoRow('시작일', c.start_date||'-')}
+        ${infoRow('종료일', c.end_date||'미설정')}
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:18px">과금 지표</div>
+        ${infoRow('CPT 단가 (대/월)', cpt ? fmtWon(cpt) : '—')}
+        ${infoRow('CPM (추정)', cpm ? fmtWon(cpm) : '—')}
+        ${infoRow('노출 추정', fmtNum(estimateImpressions(c)))}
+        ${infoRow('도달 인원 추정', fmtNum(estimateReach(c)) + '명')}
+        ${infoRow('지역', (t.regions||[]).join(', ')||'전국')}
+        ${infoRow('업종 카테고리', (t.categories||[]).join(', ')||'전체')}
+      </div>
+    </div>
+  `;
+
+  if (trend.length) {
+    const ctx = document.getElementById('ch-detail')?.getContext('2d');
+    if (ctx) charts.detail = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: trend.map(s=>s.date), datasets: [
+        { label:'노출 추정', data:trend.map(s=>s.imp), backgroundColor:'rgba(255,255,255,0.07)', borderColor:'rgba(255,255,255,0.15)', borderWidth:1, borderRadius:3, yAxisID:'y' },
+        { label:'도달 인원', data:trend.map(s=>s.reach), backgroundColor:'rgba(61,220,132,0.45)', borderColor:'rgba(61,220,132,0.7)', borderWidth:1, borderRadius:3, yAxisID:'y1' },
+      ]},
+      options: {
+        responsive:true,
+        plugins:{ legend:{ labels:{ color:'#555', font:{size:11}, boxWidth:10, boxHeight:10 }}},
+        scales:{
+          x:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11}} },
+          y:{ grid:{color:'#141414'}, ticks:{color:'#888',font:{size:11},callback:v=>fmtNum(v)}, position:'left' },
+          y1:{ grid:{display:false}, ticks:{color:'#3ddc84',font:{size:11},callback:v=>fmtNum(v)}, position:'right' },
+        },
+      }
+    });
+  }
+}
+
+function infoRow(label, value) {
+  return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #141414;font-size:13px">
+    <span style="color:#444">${label}</span>
+    <span style="color:#ccc">${value}</span>
+  </div>`;
+}
+
+async function detailStatus(status) {
+  await updateCampaignStatus(selectedCampaignId, status);
+  renderCampaignDetail(selectedCampaignId);
+  showToast(status==='active'?'캠페인이 활성화되었습니다.':'캠페인이 일시정지되었습니다.');
+}
+
+async function detailDelete() {
+  const c = campaigns.find(x => x.id === selectedCampaignId);
+  if (!confirm(`"${c?.name}" 캠페인을 삭제하시겠습니까?`)) return;
+  await deleteCampaign(selectedCampaignId);
+  navigate('campaigns');
+  showToast('캠페인이 삭제되었습니다.');
+}
+
+// ── REPORTS ───────────────────────────────────────
+function renderReports() {
+  document.getElementById('topbar-title').textContent = '보고서';
+  document.getElementById('topbar-actions').innerHTML = '';
+
+  const active = campaigns.filter(c => c.status === 'active');
+  const totals = sumCampaigns(active);
+  const avgCPM = totals.impressions ? Math.round(totals.budget / (totals.impressions / 1000)) : 0;
+
+  const days30 = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const label = d.toLocaleDateString('ko', { month:'short', day:'numeric' });
+    let imp = 0, reach = 0;
+    active.forEach(c => {
+      if (!c.start_date || new Date(c.start_date) > d) return;
+      const seed = d.getDate() + d.getMonth() * 31;
+      const v = 0.80 + (seed % 9) * 0.04;
+      const rate = SLOT_IMP[c.slot] || SLOT_IMP.D;
+      const ii = Math.floor((c.tablets || 0) * rate * v);
+      imp   += ii;
+      reach += Math.floor(ii * REACH_RATIO);
+    });
+    days30.push({ label, imp, reach });
+  }
+
+  const campRows = [...campaigns].map(c => ({
+    ...c,
+    _imp: estimateImpressions(c),
+    _reach: estimateReach(c),
+    _cpm: calcCPM(c),
+    _cpt: calcCPT(c),
+  })).sort((a, b) => b._imp - a._imp);
+
+  document.getElementById('content').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">총 노출 추정</div>
+        <div class="metric-value">${fmtNum(totals.impressions)}</div>
+        <div class="metric-sub">활성 캠페인 기준</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">총 도달 인원 추정</div>
+        <div class="metric-value">${fmtNum(totals.reach)}<span style="font-size:14px;color:#444;font-weight:500"> 명</span></div>
+        <div class="metric-sub">노출 × 2.5명 기준</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">평균 CPM</div>
+        <div class="metric-value">${avgCPM ? fmtWon(avgCPM) : '—'}</div>
+        <div class="metric-sub">계약금액 / 노출 1,000회</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">총 계약금액</div>
+        <div class="metric-value">${fmtMoney(totals.budget)}</div>
+        <div class="metric-sub">활성 캠페인 ${active.length}개</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="chart-title">일별 노출 / 도달 인원 추이 (최근 30일)</div>
+      <canvas id="ch-report" height="150"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-bottom:18px">캠페인별 성과</div>
+      ${campRows.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-state-title">캠페인이 없습니다</div>
+          <div class="empty-state-desc">캠페인을 만들면 여기에 성과가 표시됩니다</div>
+        </div>
+      ` : `
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>캠페인명</th><th>구좌</th><th>상태</th>
+              <th>매장 수</th><th>노출 추정</th><th>도달 인원</th>
+              <th>CPT 단가/대</th><th>CPM</th><th>계약금액</th>
+            </tr></thead>
+            <tbody>
+              ${campRows.map(c => `
+                <tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
+                  <td><div class="camp-name">${escHtml(c.name)}</div></td>
+                  <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
+                  <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+                  <td>${(c.tablets||0).toLocaleString()}대</td>
+                  <td>${fmtNum(c._imp)}</td>
+                  <td>${fmtNum(c._reach)}명</td>
+                  <td>${c._cpt ? fmtWon(c._cpt) : '—'}</td>
+                  <td>${c._cpm ? fmtWon(c._cpm) : '—'}</td>
+                  <td>${fmtMoney(c.total_budget||0)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  `;
+
+  const ctx = document.getElementById('ch-report')?.getContext('2d');
+  if (ctx) charts.report = new Chart(ctx, {
+    type: 'line',
+    data: { labels: days30.map(s=>s.label), datasets: [
+      { label:'노출 추정', data:days30.map(s=>s.imp), borderColor:'#ffffff', backgroundColor:'rgba(255,255,255,0.03)', borderWidth:2, fill:true, tension:0.4, pointRadius:0, yAxisID:'y' },
+      { label:'도달 인원', data:days30.map(s=>s.reach), borderColor:'#3ddc84', backgroundColor:'rgba(61,220,132,0.03)', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0, yAxisID:'y1' },
+    ]},
+    options: {
+      responsive:true,
+      plugins:{ legend:{ labels:{ color:'#555', font:{size:11}, boxWidth:10, boxHeight:10 }}},
+      scales:{
+        x:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11},maxTicksLimit:10} },
+        y:{ grid:{color:'#141414'}, ticks:{color:'#888',font:{size:11},callback:v=>fmtNum(v)}, position:'left' },
+        y1:{ grid:{display:false}, ticks:{color:'#3ddc84',font:{size:11},callback:v=>fmtNum(v)}, position:'right' },
+      },
+      interaction:{ intersect:false, mode:'index' },
+    }
+  });
+}
+
+// ── CREATE MODAL ──────────────────────────────────
+function showCreateModal() {
+  createStep = 1;
+  createData = { slot: 'D', regions: [], categories: [], status: 'draft' };
+  renderCreateModal();
+}
+
+function renderCreateModal() {
+  const stepEl = (n, label) => {
+    const cls = createStep > n ? 'done' : createStep === n ? 'active' : '';
+    return `<div class="step ${cls}">
+      <div class="step-dot">${createStep > n ? '✓' : n}</div>
+      <span>${label}</span>
+    </div>`;
+  };
+
+  let body = '';
+
+  if (createStep === 1) {
+    body = `
+      <div class="field">
+        <label>캠페인 이름</label>
+        <input type="text" id="c-name" placeholder="예: 2025 카스맥주 여름 캠페인" value="${escHtml(createData.name||'')}">
+      </div>
+      <div class="field">
+        <label>광고 구좌 선택</label>
+        <div class="slot-selector">
+          <button class="slot-option ${createData.slot==='C'?'selected-C':''}" onclick="setSlot('C')">
+            <div class="slot-option-head">
+              <span class="slot-badge slot-C">C구좌</span>
+            </div>
+            <div class="slot-option-name">주문 완료 직후</div>
+            <div class="slot-option-desc">결제 완료 즉시 전체 화면 노출. QR 프로모션형에 최적.</div>
+            <div class="slot-option-when slot-C">트리거: 주문 완료 후 즉시</div>
+          </button>
+          <button class="slot-option ${createData.slot==='D'?'selected-D':''}" onclick="setSlot('D')">
+            <div class="slot-option-head">
+              <span class="slot-badge slot-D">D구좌</span>
+            </div>
+            <div class="slot-option-name">대기 / 식사 중</div>
+            <div class="slot-option-desc">주문 후 대기·식사 중 반복 노출. 브랜딩에 최적.</div>
+            <div class="slot-option-when slot-D">트리거: 주문 후 유휴 화면</div>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label>초기 상태</label>
+        <select id="c-status">
+          <option value="draft" ${createData.status==='draft'?'selected':''}>초안 (나중에 시작)</option>
+          <option value="active" ${createData.status==='active'?'selected':''}>즉시 활성화</option>
+        </select>
+      </div>`;
+
+  } else if (createStep === 2) {
+    // 예산 미리보기 계산
+    const tablets = parseInt(createData.tablets) || 0;
+    const start   = createData.start_date || '';
+    const end     = createData.end_date   || '';
+    const budget  = parseInt(createData.total_budget) || 0;
+    const days    = (start && end) ? Math.max(0, Math.ceil((new Date(end) - new Date(start)) / 86400000)) : 0;
+    const rate    = SLOT_IMP[createData.slot] || SLOT_IMP.D;
+    const estImp  = tablets && days ? Math.floor(tablets * days * rate * 0.9) : 0;
+    const estReach= Math.floor(estImp * REACH_RATIO);
+    const cpm     = (budget && estImp) ? Math.round(budget / (estImp / 1000)) : 0;
+
+    body = `
+      <div class="field">
+        <label>집행 태블릿 수 (대)</label>
+        <input type="number" id="c-tablets" placeholder="예: 500" value="${createData.tablets||''}" min="1" step="1" oninput="syncCreateField('tablets',this.value)">
+      </div>
+      <div class="input-row">
+        <div class="field">
+          <label>시작일</label>
+          <input type="date" id="c-start" value="${createData.start_date||new Date().toISOString().slice(0,10)}" oninput="syncCreateField('start_date',this.value)">
+        </div>
+        <div class="field">
+          <label>종료일</label>
+          <input type="date" id="c-end" value="${createData.end_date||''}" oninput="syncCreateField('end_date',this.value)">
+        </div>
+      </div>
+      <div class="field">
+        <label>총 계약금액 (₩)</label>
+        <input type="number" id="c-budget" placeholder="예: 1500000" value="${createData.total_budget||''}" min="0" step="10000" oninput="syncCreateField('total_budget',this.value)">
+      </div>
+      ${tablets && days && budget ? `
+        <div class="budget-preview">
+          <div class="bp-item">
+            <div class="bp-label">노출 추정</div>
+            <div class="bp-value">${fmtNum(estImp)}</div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-label">도달 인원</div>
+            <div class="bp-value">${fmtNum(estReach)}명</div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-label">CPM 추정</div>
+            <div class="bp-value">${fmtWon(cpm)}</div>
+          </div>
+        </div>
+      ` : `
+        <div style="font-size:12px;color:#2a2a2a;margin-top:8px">태블릿 수, 기간, 금액 입력 시 예상 지표가 표시됩니다.</div>
+      `}`;
+
+  } else {
+    body = `
+      <div class="field">
+        <label>지역 (선택 안 하면 전국)</label>
+        <div class="tag-group">${REGIONS.map(r=>`<button class="tag ${createData.regions.includes(r)?'selected':''}" onclick="toggleTag('regions','${r}')">${r}</button>`).join('')}</div>
+      </div>
+      <div class="field">
+        <label>매장 업종 카테고리 (선택 안 하면 전체)</label>
+        <div class="tag-group">${CATEGORIES.map(c=>`<button class="tag ${createData.categories.includes(c)?'selected':''}" onclick="toggleTag('categories','${c}')">${c}</button>`).join('')}</div>
+      </div>`;
+  }
+
+  document.getElementById('modal-container').innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-title">캠페인 만들기</div>
+        <div class="modal-desc">광고 구좌, 집행 규모, 기간을 설정하세요</div>
+        <div class="steps">
+          ${stepEl(1,'구좌 / 기본')}
+          <div class="step-line"></div>
+          ${stepEl(2,'규모 / 예산')}
+          <div class="step-line"></div>
+          ${stepEl(3,'타겟팅')}
+        </div>
+        ${body}
+        <div style="display:flex;gap:10px;margin-top:24px">
+          ${createStep > 1 ? `<button class="btn btn-secondary" onclick="createPrev()">이전</button>` : ''}
+          <button class="btn btn-primary" id="modal-submit" style="flex:1" onclick="${createStep===3?'submitCreate()':'createNext()'}">
+            ${createStep===3?'캠페인 만들기':'다음'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function setSlot(slot) { createData.slot = slot; renderCreateModal(); }
+
+function syncCreateField(key, val) {
+  createData[key] = val;
+  // 미리보기 리프레시 (step2에서만)
+  if (createStep === 2) {
+    const tablets = parseInt(document.getElementById('c-tablets')?.value) || 0;
+    const start   = document.getElementById('c-start')?.value || '';
+    const end     = document.getElementById('c-end')?.value || '';
+    const budget  = parseInt(document.getElementById('c-budget')?.value) || 0;
+    const days    = (start && end) ? Math.max(0, Math.ceil((new Date(end) - new Date(start)) / 86400000)) : 0;
+    const rate    = SLOT_IMP[createData.slot] || SLOT_IMP.D;
+    const estImp  = tablets && days ? Math.floor(tablets * days * rate * 0.9) : 0;
+    const estReach= Math.floor(estImp * REACH_RATIO);
+    const cpm     = (budget && estImp) ? Math.round(budget / (estImp / 1000)) : 0;
+    const prev    = document.querySelector('.budget-preview');
+    if (tablets && days && budget) {
+      const html = `
+        <div class="bp-item"><div class="bp-label">노출 추정</div><div class="bp-value">${fmtNum(estImp)}</div></div>
+        <div class="bp-item"><div class="bp-label">도달 인원</div><div class="bp-value">${fmtNum(estReach)}명</div></div>
+        <div class="bp-item"><div class="bp-label">CPM 추정</div><div class="bp-value">${fmtWon(cpm)}</div></div>`;
+      if (prev) { prev.innerHTML = html; }
+      else {
+        const tip = document.querySelector('.modal [style*="2a2a2a"]');
+        if (tip) {
+          const el = document.createElement('div');
+          el.className = 'budget-preview';
+          el.innerHTML = html;
+          tip.replaceWith(el);
+        }
+      }
+    }
+  }
+}
+
+function toggleTag(field, val) {
+  const arr = createData[field];
+  const idx = arr.indexOf(val);
+  if (idx === -1) arr.push(val); else arr.splice(idx, 1);
+  renderCreateModal();
+}
+
+function createNext() {
+  if (createStep === 1) {
+    const name = document.getElementById('c-name').value.trim();
+    if (!name) { alert('캠페인 이름을 입력해주세요.'); return; }
+    createData.name   = name;
+    createData.status = document.getElementById('c-status').value;
+  } else if (createStep === 2) {
+    const tablets = parseInt(document.getElementById('c-tablets').value);
+    const budget  = parseInt(document.getElementById('c-budget').value);
+    const start   = document.getElementById('c-start').value;
+    const end     = document.getElementById('c-end').value;
+    if (!tablets || tablets < 1)   { alert('집행 태블릿 수를 입력해주세요.'); return; }
+    if (!start)                     { alert('시작일을 선택해주세요.'); return; }
+    if (!end)                       { alert('종료일을 선택해주세요.'); return; }
+    if (new Date(end) <= new Date(start)) { alert('종료일은 시작일 이후여야 합니다.'); return; }
+    if (!budget || budget < 0)      { alert('계약금액을 입력해주세요.'); return; }
+    createData.tablets      = tablets;
+    createData.start_date   = start;
+    createData.end_date     = end;
+    createData.total_budget = budget;
+  }
+  createStep++;
+  renderCreateModal();
+}
+
+function createPrev() { createStep--; renderCreateModal(); }
+
+async function submitCreate() {
+  const btn = document.getElementById('modal-submit');
+  btn.disabled = true; btn.textContent = '생성 중...';
+  await createCampaign({
+    name:         createData.name,
+    slot:         createData.slot,
+    status:       createData.status,
+    tablets:      createData.tablets,
+    total_budget: createData.total_budget,
+    start_date:   createData.start_date,
+    end_date:     createData.end_date,
+    targeting: {
+      regions:    createData.regions,
+      categories: createData.categories,
+    },
+  });
+  closeModal();
+  navigate('campaigns');
+  showToast('캠페인이 생성되었습니다!');
+}
+
+function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
+
+// ── HELPERS ───────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function statusLabel(s) { return {active:'활성',paused:'일시정지',draft:'초안',completed:'완료'}[s]||s; }
+function slotDesc(slot) {
+  return slot === 'C' ? '주문 완료 직후' : '대기 / 식사 중';
+}
+
+// ── BOOT ──────────────────────────────────────────
+initAuth();
+</script>
+</body>
+</html>
