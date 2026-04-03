@@ -614,18 +614,24 @@ let createData = {};
 
 // ── AUTH ─────────────────────────────────────────
 async function initAuth() {
-  const { data } = await sb.auth.getSession();
-  if (!data.session) { location.href = '/?r=ads'; return; }
-  currentUser = data.session.user;
-  const email = currentUser.email || '';
-  document.getElementById('user-email').textContent = email;
-  document.getElementById('user-avatar').textContent = (email[0] || 'U').toUpperCase();
+  const saved = localStorage.getItem('sb_session');
+  if (!saved) { location.href = '/'; return; }
+  try {
+    const s = JSON.parse(saved);
+    if (!s.access_token || s.expires_at < Date.now() / 1000) {
+      localStorage.removeItem('sb_session'); location.href = '/'; return;
+    }
+    currentUser = s.user || { id: s.user_id || 'local', email: s.user?.email || '' };
+    const email = currentUser.email || '';
+    document.getElementById('user-email').textContent = email;
+    document.getElementById('user-avatar').textContent = (email[0] || 'U').toUpperCase();
+  } catch(e) { localStorage.removeItem('sb_session'); location.href = '/'; return; }
   await loadCampaigns();
   navigate('dashboard');
 }
 
-async function handleLogout() {
-  await sb.auth.signOut();
+function handleLogout() {
+  localStorage.removeItem('sb_session');
   location.href = '/';
 }
 
