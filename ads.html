@@ -3,585 +3,448 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>광고 관리자 — Menuit Ads</title>
+  <title>Menuit Ads — 광고 관리자</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Pretendard', sans-serif;
-      background: #0a0a0a;
-      color: #f0f0f0;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
+    :root {
+      --primary: #073763;
+      --primary-hover: #052a4a;
+      --primary-light: #e8eef6;
+      --border: #e5e7eb;
+      --bg: #f3f4f6;
+      --surface: #fff;
+      --text: #111827;
+      --muted: #6b7280;
+      --label: #374151;
+      --sb-bg: #0f172a;
+      --sb-hover: #1e293b;
+      --sb-active: #073763;
+      --sb-text: #94a3b8;
+      --sb-border: #1e293b;
+      --sb-section: #64748b;
     }
 
-    /* ─── Sidebar ─── */
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ── 사이드바 ── */
     .sidebar {
       width: 220px;
-      min-width: 220px;
-      background: #0d0d0d;
-      border-right: 1px solid #1a1a1a;
+      flex-shrink: 0;
+      background: var(--sb-bg);
       display: flex;
       flex-direction: column;
       height: 100vh;
-      overflow-y: auto;
+      position: sticky;
+      top: 0;
     }
     .sidebar-logo {
-      padding: 20px 20px 16px;
+      padding: 18px 16px 15px;
+      border-bottom: 1px solid var(--sb-border);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sidebar-logo-name {
       font-size: 13px;
       font-weight: 800;
-      letter-spacing: 0.12em;
       color: #fff;
-      border-bottom: 1px solid #1a1a1a;
+      letter-spacing: 0.05em;
     }
-    .sidebar-logo span { color: #333; font-weight: 400; font-size: 11px; letter-spacing: 0.02em; display: block; margin-top: 3px; }
-    .sidebar-section { padding: 16px 12px 8px; flex: 1; }
-    .sidebar-label {
+    .sidebar-logo-sub {
+      font-size: 10px;
+      color: var(--sb-section);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .sidebar-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+    .nav-section-label {
       font-size: 10px;
       font-weight: 700;
+      color: var(--sb-section);
       letter-spacing: 0.1em;
-      color: #3a3a3a;
       text-transform: uppercase;
-      padding: 0 8px;
-      margin-bottom: 4px;
+      padding: 6px 10px 8px;
     }
     .nav-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 9px 10px;
-      border-radius: 8px;
-      font-size: 13.5px;
+      padding: 9px 12px;
+      border-radius: 7px;
+      color: var(--sb-text);
+      font-size: 13px;
       font-weight: 500;
-      color: #666;
       cursor: pointer;
-      transition: all 0.15s;
-      text-decoration: none;
-      margin-bottom: 2px;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 1px;
       border: none;
-      background: none;
+      background: transparent;
       width: 100%;
-      font-family: inherit;
       text-align: left;
+      font-family: inherit;
+      letter-spacing: -0.01em;
+      text-decoration: none;
     }
-    .nav-item:hover { background: #141414; color: #ccc; }
-    .nav-item.active { background: #1a1a1a; color: #fff; }
-    .nav-item svg { opacity: 0.6; flex-shrink: 0; }
-    .nav-item.active svg { opacity: 1; }
+    .nav-item:hover { background: var(--sb-hover); color: #fff; }
+    .nav-item.active { background: var(--sb-active); color: #fff; font-weight: 700; }
+    .nav-icon { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55; }
+    .nav-item:hover .nav-icon,
+    .nav-item.active .nav-icon { opacity: 1; }
     .sidebar-bottom {
-      padding: 12px;
-      border-top: 1px solid #1a1a1a;
+      padding: 12px 10px;
+      border-top: 1px solid var(--sb-border);
     }
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .user-chip:hover { background: #141414; }
+    .user-info { display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin-bottom: 2px; }
     .user-avatar {
       width: 28px; height: 28px;
       border-radius: 50%;
-      background: #222;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: #888;
+      background: var(--sb-active);
+      border: 1.5px solid #1e4d8c;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .user-email { font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-logout {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 12px; border-radius: 7px;
+      font-family: inherit; font-size: 12px; font-weight: 500;
+      color: #94a3b8; background: transparent; border: none;
+      cursor: pointer; width: 100%;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-logout:hover { background: rgba(239,68,68,0.12); color: #f87171; }
+
+    /* ── 메인 ── */
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
       flex-shrink: 0;
     }
-    .user-email {
-      font-size: 12px;
-      color: #555;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-    }
+    .topbar-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .content { padding: 28px 32px; overflow-y: auto; flex: 1; }
 
-    /* ─── Main ─── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .topbar {
-      height: 56px;
-      min-height: 56px;
-      border-bottom: 1px solid #1a1a1a;
-      display: flex;
-      align-items: center;
-      padding: 0 28px;
-      gap: 12px;
-      background: #0a0a0a;
-    }
-    .topbar-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-      flex: 1;
-    }
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 28px;
-    }
-
-    /* ─── Buttons ─── */
+    /* ── 버튼 ── */
     .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      padding: 8px 16px; border-radius: 8px;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: none;
+      display: inline-flex; align-items: center; gap: 6px;
     }
-    .btn-primary { background: #fff; color: #000; }
-    .btn-primary:hover { background: #e8e8e8; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary { background: transparent; color: #888; border: 1px solid #1f1f1f; }
-    .btn-secondary:hover { border-color: #333; color: #ccc; }
-    .btn-ghost { background: transparent; color: #666; padding: 6px 10px; }
-    .btn-ghost:hover { color: #ccc; background: #141414; }
-    .btn-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
-    .btn-danger:hover { background: rgba(239,68,68,0.15); }
+    .btn-secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: #d1d5db; color: var(--text); background: #f9fafb; }
+    .btn-ghost { background: transparent; color: var(--muted); padding: 6px 10px; }
+    .btn-ghost:hover { background: #f3f4f6; color: var(--text); }
+    .btn-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
     .btn-sm { padding: 5px 12px; font-size: 12px; }
 
-    /* ─── Cards ─── */
+    /* ── 카드 ── */
     .card {
-      background: #111;
-      border: 1px solid #1a1a1a;
+      background: var(--surface);
       border-radius: 14px;
       padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
-    /* ─── Metric cards ─── */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
+    /* ── 스탯 그리드 ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+    .stat-card {
+      background: var(--surface); border-radius: 14px;
+      padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
-    .metric-card {
-      background: #111;
-      border: 1px solid #1a1a1a;
-      border-radius: 14px;
-      padding: 20px 22px;
-    }
-    .metric-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #444;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .metric-value {
-      font-size: 26px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .metric-sub { font-size: 12px; font-weight: 500; color: #3a3a3a; }
-    .metric-sub.up { color: #3ddc84; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+    .stat-value { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.04em; line-height: 1; margin-bottom: 8px; }
+    .stat-sub { font-size: 12px; color: #9ca3af; }
+    .stat-sub.up { color: #16a34a; font-weight: 600; }
 
-    /* ─── Table ─── */
+    /* ── 구좌 배지 ── */
+    .slot-badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 9px; border-radius: 6px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
+    }
+    .slot-C { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .slot-D { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+    /* ── 상태 배지 ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .status-badge::before { content:''; width:5px; height:5px; border-radius:50%; }
+    .badge-active { background:#dcfce7; color:#16a34a; }
+    .badge-active::before { background:#16a34a; }
+    .badge-paused { background:#fef9c3; color:#ca8a04; }
+    .badge-paused::before { background:#ca8a04; }
+    .badge-draft { background:#f3f4f6; color:#6b7280; }
+    .badge-draft::before { background:#9ca3af; }
+    .badge-completed { background:#ede9fe; color:#7c3aed; }
+    .badge-completed::before { background:#7c3aed; }
+
+    /* ── 테이블 ── */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     th {
-      font-size: 11px;
-      font-weight: 700;
-      color: #444;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 10px 14px;
-      text-align: left;
-      border-bottom: 1px solid #1a1a1a;
-      white-space: nowrap;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 10px 14px; text-align: left;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
     }
     td {
-      padding: 13px 14px;
-      font-size: 13.5px;
-      color: #ccc;
-      border-bottom: 1px solid #141414;
-      white-space: nowrap;
+      padding: 13px 14px; font-size: 13px; color: var(--text);
+      border-bottom: 1px solid #f3f4f6; white-space: nowrap;
     }
     tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: #0f0f0f; cursor: pointer; }
-    .camp-name { font-weight: 600; color: #f0f0f0; }
+    tbody tr:hover td { background: #f9fafb; cursor: pointer; }
+    .camp-name { font-weight: 600; color: var(--text); }
 
-    /* ─── Status badges ─── */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
-    .badge-active { background: rgba(61,220,132,0.1); color: #3ddc84; }
-    .badge-active::before { background: #3ddc84; }
-    .badge-paused { background: rgba(251,191,36,0.1); color: #fbbf24; }
-    .badge-paused::before { background: #fbbf24; }
-    .badge-draft { background: rgba(102,102,102,0.15); color: #666; }
-    .badge-draft::before { background: #444; }
-    .badge-completed { background: rgba(165,180,252,0.1); color: #a5b4fc; }
-    .badge-completed::before { background: #a5b4fc; }
+    /* ── 섹션 헤더 ── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .section-title { font-size: 15px; font-weight: 700; color: var(--text); }
 
-    /* ─── 구좌 badge ─── */
-    .slot-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 9px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-    }
-    .slot-C { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
-    .slot-D { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); }
+    /* ── 차트 그리드 ── */
+    .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .chart-title { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-    /* ─── Section header ─── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-    }
-    .section-title { font-size: 15px; font-weight: 700; color: #fff; }
-
-    /* ─── Chart grid ─── */
-    .chart-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    .chart-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #555;
-      margin-bottom: 18px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* ─── Modal ─── */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 100;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 40px 20px;
-      overflow-y: auto;
-    }
-    .modal {
-      background: #111;
-      border: 1px solid #1f1f1f;
-      border-radius: 18px;
-      width: 100%;
-      max-width: 540px;
-      padding: 32px;
-      position: relative;
-    }
-    .modal-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 4px;
-      letter-spacing: -0.02em;
-    }
-    .modal-desc { font-size: 13px; color: #444; margin-bottom: 28px; }
-    .modal-close {
-      position: absolute;
-      top: 20px; right: 20px;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: #1a1a1a;
-      border: none;
-      color: #666;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      line-height: 1;
-      transition: all 0.15s;
-    }
-    .modal-close:hover { background: #222; color: #ccc; }
-
-    /* ─── Form elements ─── */
-    .field { margin-bottom: 18px; }
-    label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: #555;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    input[type="text"],
-    input[type="number"],
-    input[type="date"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 11px 14px;
-      background: #0d0d0d;
-      border: 1px solid #1f1f1f;
-      border-radius: 10px;
-      color: #f0f0f0;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus { border-color: #333; }
-    input::placeholder { color: #2a2a2a; }
-    select option { background: #111; }
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-    /* ─── 구좌 selector ─── */
-    .slot-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-    .slot-option {
-      border: 1.5px solid #1f1f1f;
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: transparent;
-      font-family: inherit;
-      text-align: left;
-    }
-    .slot-option:hover { border-color: #333; }
-    .slot-option.selected-C { border-color: #3b82f6; background: rgba(59,130,246,0.06); }
-    .slot-option.selected-D { border-color: #a855f7; background: rgba(168,85,247,0.06); }
-    .slot-option-head {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .slot-option-name { font-size: 14px; font-weight: 800; color: #fff; }
-    .slot-option-desc { font-size: 12px; color: #444; line-height: 1.5; }
-    .slot-option-when { font-size: 11px; font-weight: 600; margin-top: 6px; }
-    .slot-C .slot-option-when { color: #60a5fa; }
-    .slot-D .slot-option-when { color: #c084fc; }
-
-    /* ─── Tags ─── */
-    .tag-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
-    .tag {
-      padding: 5px 12px;
-      border-radius: 20px;
-      border: 1px solid #1f1f1f;
-      background: transparent;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 500;
-      color: #555;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .tag:hover { border-color: #333; color: #ccc; }
-    .tag.selected { background: #1a1a1a; border-color: #3a3a3a; color: #fff; }
-
-    /* ─── Steps ─── */
-    .steps { display: flex; align-items: center; margin-bottom: 28px; }
-    .step { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #333; }
-    .step.active { color: #fff; }
-    .step.done { color: #3ddc84; }
-    .step-dot {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      border: 2px solid #222;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .step.active .step-dot { border-color: #fff; color: #fff; }
-    .step.done .step-dot { border-color: #3ddc84; color: #3ddc84; }
-    .step-line { flex: 1; height: 1px; background: #1f1f1f; margin: 0 10px; }
-
-    /* ─── 예산 미리보기 ─── */
-    .budget-preview {
-      background: #0d0d0d;
-      border: 1px solid #1f1f1f;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-top: 14px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-    .bp-item { text-align: center; }
-    .bp-label { font-size: 10px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-    .bp-value { font-size: 14px; font-weight: 700; color: #ccc; }
-
-    /* ─── Empty state ─── */
-    .empty-state { text-align: center; padding: 60px 20px; }
-    .empty-state-icon { font-size: 36px; margin-bottom: 14px; opacity: 0.25; }
-    .empty-state-title { font-size: 15px; font-weight: 700; color: #444; margin-bottom: 6px; }
-    .empty-state-desc { font-size: 13px; color: #2e2e2e; margin-bottom: 24px; }
-
-    /* ─── Filter tabs ─── */
+    /* ── 탭 ── */
     .tab-bar {
-      display: flex;
-      gap: 2px;
-      background: #0d0d0d;
-      border-radius: 10px;
-      padding: 3px;
-      width: fit-content;
-      margin-bottom: 18px;
+      display: flex; gap: 2px; background: #f3f4f6;
+      border-radius: 10px; padding: 3px;
+      width: fit-content; margin-bottom: 18px;
     }
     .tab-btn {
-      padding: 7px 16px;
-      border-radius: 8px;
-      background: transparent;
-      border: none;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      color: #444;
-      cursor: pointer;
-      transition: all 0.15s;
+      padding: 7px 16px; border-radius: 8px; background: transparent;
+      border: none; font-family: inherit; font-size: 13px; font-weight: 600;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
     }
-    .tab-btn.active { background: #1a1a1a; color: #fff; }
+    .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
-    /* ─── Detail ─── */
-    .detail-stats {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .detail-stat {
-      background: #0d0d0d;
-      border: 1px solid #1a1a1a;
-      border-radius: 12px;
-      padding: 16px 18px;
-    }
+    /* ── 빈 상태 ── */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state-icon { font-size: 36px; margin-bottom: 14px; opacity: 0.25; }
+    .empty-state-title { font-size: 15px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+    .empty-state-desc { font-size: 13px; color: #9ca3af; margin-bottom: 24px; }
+
+    /* ── 디테일 스탯 ── */
+    .detail-stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 20px; }
+    .detail-stat { background: #f9fafb; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
     .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: #444;
-      cursor: pointer;
-      margin-bottom: 20px;
-      transition: color 0.15s;
-      background: none;
-      border: none;
-      font-family: inherit;
-      padding: 0;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--muted); cursor: pointer;
+      margin-bottom: 20px; background: none; border: none;
+      font-family: inherit; padding: 0; transition: color 0.15s;
     }
-    .back-btn:hover { color: #aaa; }
+    .back-btn:hover { color: var(--text); }
 
-    /* ─── Toast ─── */
+    /* ── 모달 ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 100; display: flex; align-items: flex-start;
+      justify-content: center; padding: 40px 20px; overflow-y: auto;
+    }
+    .modal {
+      background: var(--surface); border-radius: 18px;
+      width: 100%; max-width: 540px; padding: 32px; position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .modal-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -0.02em; }
+    .modal-desc { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .modal-close {
+      position: absolute; top: 20px; right: 20px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #f3f4f6; border: none; color: var(--muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; line-height: 1; transition: all 0.15s;
+    }
+    .modal-close:hover { background: #e5e7eb; color: var(--text); }
+
+    /* ── 폼 ── */
+    .field { margin-bottom: 18px; }
+    label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: var(--muted); margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%; padding: 11px 14px;
+      background: #f9fafb; border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      font-family: inherit; font-size: 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus { border-color: var(--primary); background: #fff; }
+    input::placeholder { color: #9ca3af; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── 구좌 선택 ── */
+    .slot-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .slot-option {
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 16px; cursor: pointer; transition: all 0.15s;
+      background: var(--surface); text-align: left; font-family: inherit;
+    }
+    .slot-option:hover { border-color: #d1d5db; }
+    .slot-option.sel-C { border-color: #2563eb; background: #eff6ff; }
+    .slot-option.sel-D { border-color: #7c3aed; background: #f5f3ff; }
+    .slot-option-name { font-size: 14px; font-weight: 800; color: var(--text); margin: 8px 0 4px; }
+    .slot-option-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .slot-option-when { font-size: 11px; font-weight: 600; margin-top: 6px; }
+    .sel-C .slot-option-when { color: #2563eb; }
+    .sel-D .slot-option-when { color: #7c3aed; }
+
+    /* ── 태그 ── */
+    .tag-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+    .tag {
+      padding: 5px 12px; border-radius: 20px;
+      border: 1px solid var(--border); background: transparent;
+      font-family: inherit; font-size: 12px; font-weight: 500;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .tag:hover { border-color: #d1d5db; color: var(--text); background: #f9fafb; }
+    .tag.selected { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+    /* ── 스텝 ── */
+    .steps { display: flex; align-items: center; margin-bottom: 28px; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #d1d5db; }
+    .step.active { color: var(--text); }
+    .step.done { color: #16a34a; }
+    .step-dot {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid #e5e7eb; display: flex; align-items: center;
+      justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .step.active .step-dot { border-color: var(--primary); color: var(--primary); }
+    .step.done .step-dot { border-color: #16a34a; color: #16a34a; }
+    .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 10px; }
+
+    /* ── 예산 미리보기 ── */
+    .budget-preview {
+      background: var(--primary-light); border: 1px solid #c7d9ef;
+      border-radius: 10px; padding: 14px 16px; margin-top: 14px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    }
+    .bp-item { text-align: center; }
+    .bp-label { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; opacity: 0.7; }
+    .bp-value { font-size: 14px; font-weight: 700; color: var(--primary); }
+
+    /* ── QR ── */
+    .qr-swatch { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform .12s, border-color .12s; flex-shrink: 0; }
+    .qr-swatch:hover { transform: scale(1.2); }
+    .qr-swatch.sel { border-color: var(--primary); transform: scale(1.15); }
+    .qr-swatch[data-c="#ffffff"] { border-color: #e5e7eb; }
+    .qr-swatch[data-c="#ffffff"].sel { border-color: var(--primary); }
+    .qr-plus {
+      width: 26px; height: 26px; border-radius: 6px; border: 1.5px dashed #d1d5db;
+      background: transparent; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; font-size: 14px; color: #9ca3af; position: relative; flex-shrink: 0;
+    }
+    .qr-plus:hover { border-color: #9ca3af; }
+    .qr-plus input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; border: none; padding: 0; }
+    .qr-bstyle-btn {
+      flex: 1; padding: 9px 4px; border: 1.5px solid var(--border); border-radius: 8px;
+      background: var(--surface); font-family: inherit; font-size: 12px; color: var(--muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .qr-bstyle-btn:hover { border-color: #d1d5db; color: var(--text); }
+    .qr-bstyle-btn.qr-bstyle-active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
+    .qr-ec-btn {
+      flex: 1; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: 8px;
+      background: var(--surface); font-family: inherit; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 3px; transition: all .15s;
+    }
+    .qr-ec-btn:hover { border-color: #d1d5db; }
+    .qr-ec-btn.qr-ec-active { border-color: var(--primary); background: var(--primary-light); }
+    .qr-ec-btn .lv { font-size: 15px; font-weight: 800; color: #9ca3af; }
+    .qr-ec-btn.qr-ec-active .lv { color: var(--primary); }
+    .qr-ec-btn .desc { font-size: 11px; color: #9ca3af; }
+
+    /* ── 토스트 ── */
     .toast {
-      position: fixed;
-      bottom: 24px; right: 24px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 12px;
-      padding: 13px 18px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #f0f0f0;
-      z-index: 200;
-      transform: translateY(80px);
-      opacity: 0;
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--text); border-radius: 12px;
+      padding: 13px 18px; font-size: 13px; font-weight: 500; color: #fff;
+      z-index: 200; transform: translateY(80px); opacity: 0;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      pointer-events: none;
+      display: flex; align-items: center; gap: 10px; pointer-events: none;
     }
     .toast.show { transform: translateY(0); opacity: 1; }
 
-    /* ─── Scrollbar ─── */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #1f1f1f; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
   </style>
 </head>
 <body>
 
-<!-- Sidebar -->
 <aside class="sidebar">
   <div class="sidebar-logo">
-    MENUIT ADS
-    <span>광고 관리자 센터</span>
+    <div class="sidebar-logo-name">MENUIT ADS</div>
+    <div class="sidebar-logo-sub">광고 관리자 센터</div>
   </div>
-  <div class="sidebar-section">
-    <div class="sidebar-label">메뉴</div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">메뉴</div>
     <button class="nav-item" id="nav-dashboard" onclick="navigate('dashboard')">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
       </svg>
       대시보드
     </button>
     <button class="nav-item" id="nav-campaigns" onclick="navigate('campaigns')">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/>
         <path d="M17.586 3.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
       </svg>
       캠페인
     </button>
     <button class="nav-item" id="nav-reports" onclick="navigate('reports')">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
       보고서
     </button>
-    <div class="sidebar-label" style="margin-top:16px;">도구</div>
+    <div class="nav-section-label" style="margin-top:12px;">도구</div>
     <button class="nav-item" id="nav-qr" onclick="navigate('qr')">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
         <rect x="3" y="14" width="7" height="7" rx="1"/>
         <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor" stroke="none"/>
       </svg>
       QR 코드 생성기
     </button>
-  </div>
+  </nav>
   <div class="sidebar-bottom">
-    <div class="user-chip" onclick="handleLogout()">
+    <div class="user-info">
       <div class="user-avatar" id="user-avatar">?</div>
       <div class="user-email" id="user-email">로딩 중...</div>
     </div>
+    <button class="btn-logout" onclick="handleLogout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      로그아웃
+    </button>
   </div>
 </aside>
 
-<!-- Main -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">대시보드</div>
@@ -590,36 +453,22 @@
   <div class="content" id="content"></div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast">
-  <span>✓</span>
-  <span id="toast-msg"></span>
-</div>
-
-<!-- Modal -->
+<div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
 <div id="modal-container"></div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────
 const SUPABASE_URL = 'https://blhjftuqttiaojinpptl.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsaGpmdHVxdHRpYW9qaW5wcHRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMjc5NDgsImV4cCI6MjA4OTkwMzk0OH0.j4nsoSLtbMG_7dCCyxszQxKWgLbstGAwiaGWjNnoeaU';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── CONSTANTS ────────────────────────────────────
-// 구좌별 대당 일 노출 추정
-const SLOT_IMP = { C: 2, D: 20 };   // C: 주문완료 횟수/일, D: 대기중 노출/일
-const REACH_RATIO = 2.5;             // 테이블 평균 인원 (실측 기반)
-const REGIONS = ['서울','경기','인천','부산','대구','광주','대전','울산','강원','충북','충남','전북','전남','경북','경남','제주'];
+const SLOT_IMP   = { C: 2, D: 20 };
+const REACH_RATIO = 2.5;
+const REGIONS    = ['서울','경기','인천','부산','대구','광주','대전','울산','강원','충북','충남','전북','전남','경북','경남','제주'];
 const CATEGORIES = ['주류/음료','패스트푸드','한식','일식','중식','분식','카페/디저트','치킨/피자','고기구이','술집/바'];
+const STORE_KEY  = 'menuit_ad_campaigns_v2';
 
-// ── STATE ────────────────────────────────────────
-let campaigns = [];
-let currentUser = null;
-let selectedCampaignId = null;
-let charts = {};
-let campFilter = 'all';
-let createStep = 1;
-let createData = {};
+let campaigns = [], currentUser = null, selectedCampaignId = null;
+let charts = {}, campFilter = 'all', createStep = 1, createData = {};
 
 // ── AUTH ─────────────────────────────────────────
 async function initAuth() {
@@ -630,7 +479,7 @@ async function initAuth() {
     if (!s.access_token || s.expires_at < Date.now() / 1000) {
       localStorage.removeItem('sb_session'); location.href = '/'; return;
     }
-    currentUser = s.user || { id: s.user_id || 'local', email: s.user?.email || '' };
+    currentUser = s.user || { id: 'local', email: '' };
     const email = currentUser.email || '';
     document.getElementById('user-email').textContent = email;
     document.getElementById('user-avatar').textContent = (email[0] || 'U').toUpperCase();
@@ -639,25 +488,14 @@ async function initAuth() {
   navigate('dashboard');
 }
 
-function handleLogout() {
-  localStorage.removeItem('sb_session');
-  location.href = '/';
-}
+function handleLogout() { localStorage.removeItem('sb_session'); location.href = '/'; }
 
 // ── DATA ─────────────────────────────────────────
-const STORE_KEY = 'menuit_ad_campaigns_v2';
-
-function saveCampaigns() {
-  localStorage.setItem(STORE_KEY, JSON.stringify(campaigns));
-}
+function saveCampaigns() { localStorage.setItem(STORE_KEY, JSON.stringify(campaigns)); }
 
 async function loadCampaigns() {
   try {
-    const { data, error } = await sb
-      .from('campaigns')
-      .select('*')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: false });
+    const { data, error } = await sb.from('campaigns').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     if (!error && data && data.length) { campaigns = data; return; }
   } catch(e) {}
   const stored = localStorage.getItem(STORE_KEY);
@@ -665,20 +503,12 @@ async function loadCampaigns() {
 }
 
 async function createCampaign(payload) {
-  const local = {
-    id: 'c_' + Date.now(),
-    user_id: currentUser.id,
-    created_at: new Date().toISOString(),
-    ...payload,
-  };
+  const local = { id: 'c_' + Date.now(), user_id: currentUser.id, created_at: new Date().toISOString(), ...payload };
   try {
-    const { data, error } = await sb.from('campaigns').insert([{
-      user_id: currentUser.id, ...payload,
-    }]).select().single();
+    const { data, error } = await sb.from('campaigns').insert([{ user_id: currentUser.id, ...payload }]).select().single();
     if (!error && data) { campaigns.unshift(data); return; }
   } catch(e) {}
-  campaigns.unshift(local);
-  saveCampaigns();
+  campaigns.unshift(local); saveCampaigns();
 }
 
 async function updateCampaignStatus(id, status) {
@@ -693,120 +523,74 @@ async function deleteCampaign(id) {
   saveCampaigns();
 }
 
-// ── ANALYTICS (CPT/CPM 기반) ─────────────────────
-/**
- * 캠페인 기간(일수) 계산
- */
+// ── ANALYTICS ────────────────────────────────────
 function getCampaignDays(c) {
   if (!c.start_date) return 0;
-  const start = new Date(c.start_date);
   const end = c.end_date ? new Date(c.end_date) : new Date();
-  return Math.max(0, Math.ceil((end - start) / 86400000));
+  return Math.max(0, Math.ceil((end - new Date(c.start_date)) / 86400000));
 }
-
-/**
- * 노출 추정 = 태블릿 수 × 기간(일) × 구좌별 일노출
- * 약간의 랜덤 변동(±15%)을 seed 기반으로 적용
- */
 function estimateImpressions(c) {
-  const tablets = c.tablets || 0;
-  const days    = getCampaignDays(c);
-  const rate    = SLOT_IMP[c.slot] || SLOT_IMP.D;
-  const seed    = (tablets + days) % 7;
-  const variance = 0.85 + seed * 0.05;
-  return Math.floor(tablets * days * rate * variance);
+  const t = c.tablets || 0, d = getCampaignDays(c), r = SLOT_IMP[c.slot] || SLOT_IMP.D;
+  const seed = (t + d) % 7;
+  return Math.floor(t * d * r * (0.85 + seed * 0.05));
 }
-
-/**
- * 도달 인원 추정 = 노출 × 테이블 평균 인원
- */
-function estimateReach(c) {
-  return Math.floor(estimateImpressions(c) * REACH_RATIO);
-}
-
-/**
- * CPM = 계약금액 / (노출 / 1000)
- */
+function estimateReach(c) { return Math.floor(estimateImpressions(c) * REACH_RATIO); }
 function calcCPM(c) {
   const imp = estimateImpressions(c);
-  if (!imp || !c.total_budget) return 0;
-  return Math.round(c.total_budget / (imp / 1000));
+  return imp && c.total_budget ? Math.round(c.total_budget / (imp / 1000)) : 0;
 }
-
-/**
- * CPT 단가 = 계약금액 / 태블릿 수 (월 기준)
- * total_budget / tablets = 대당 총 단가
- */
 function calcCPT(c) {
   if (!c.tablets || !c.total_budget) return 0;
-  const months = Math.max(1, getCampaignDays(c) / 30);
-  return Math.round(c.total_budget / c.tablets / months);
+  return Math.round(c.total_budget / c.tablets / Math.max(1, getCampaignDays(c) / 30));
 }
-
-/**
- * 일별 추이 데이터 (최근 N일)
- */
 function getDailyTrend(c, days = 14) {
   if (!c.start_date || c.status !== 'active') return [];
-  const start = new Date(c.start_date);
-  const today = new Date();
-  const tablets = c.tablets || 0;
-  const rate    = SLOT_IMP[c.slot] || SLOT_IMP.D;
+  const start = new Date(c.start_date), today = new Date();
+  const rate = SLOT_IMP[c.slot] || SLOT_IMP.D;
   const out = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(today); d.setDate(today.getDate() - i);
     if (d < start) continue;
     const seed = d.getDate() + d.getMonth() * 31;
     const v = 0.80 + (seed % 9) * 0.04;
-    const imp   = Math.floor(tablets * rate * v);
-    const reach = Math.floor(imp * REACH_RATIO);
-    out.push({
-      date: d.toLocaleDateString('ko', { month: 'short', day: 'numeric' }),
-      imp, reach,
-    });
+    const imp = Math.floor((c.tablets || 0) * rate * v);
+    out.push({ date: d.toLocaleDateString('ko', { month:'short', day:'numeric' }), imp, reach: Math.floor(imp * REACH_RATIO) });
   }
   return out;
 }
-
 function sumCampaigns(list) {
-  return list.reduce((acc, c) => {
-    acc.impressions += estimateImpressions(c);
-    acc.reach       += estimateReach(c);
-    acc.budget      += (c.total_budget || 0);
-    acc.tablets     += (c.tablets || 0);
-    return acc;
-  }, { impressions: 0, reach: 0, budget: 0, tablets: 0 });
+  return list.reduce((a, c) => ({ impressions: a.impressions + estimateImpressions(c), reach: a.reach + estimateReach(c), budget: a.budget + (c.total_budget || 0), tablets: a.tablets + (c.tablets || 0) }), { impressions: 0, reach: 0, budget: 0, tablets: 0 });
 }
 
-// ── FORMAT ────────────────────────────────────────
+// ── FORMAT ───────────────────────────────────────
 function fmtNum(n) {
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 10000)   return Math.round(n / 1000) + 'K';
-  if (n >= 1000)    return (n / 1000).toFixed(1) + 'K';
+  if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
+  if (n >= 10000)   return Math.round(n/1000)+'K';
+  if (n >= 1000)    return (n/1000).toFixed(1)+'K';
   return (+n).toLocaleString();
 }
-function fmtMoney(n) { return '₩' + (+n).toLocaleString(); }
-function fmtWon(n)   { return Math.round(n).toLocaleString() + '원'; }
+function fmtMoney(n)  { return '₩'+(+n).toLocaleString(); }
+function fmtWon(n)    { return Math.round(n).toLocaleString()+'원'; }
+function statusLabel(s) { return {active:'활성',paused:'일시정지',draft:'초안',completed:'완료'}[s]||s; }
+function slotDesc(s)    { return s==='C'?'주문 완료 직후':'대기 / 식사 중'; }
+function escHtml(s)     { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── TOAST ─────────────────────────────────────────
-let _toastTimer;
+// ── TOAST ────────────────────────────────────────
+let _tt;
 function showToast(msg) {
   document.getElementById('toast-msg').textContent = msg;
-  const el = document.getElementById('toast');
-  el.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  const el = document.getElementById('toast'); el.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-// ── NAVIGATION ────────────────────────────────────
+// ── NAVIGATION ───────────────────────────────────
 function navigate(view, params = {}) {
   Object.values(charts).forEach(c => { try { c.destroy(); } catch(e) {} });
   charts = {};
   ['dashboard','campaigns','reports','qr'].forEach(v => {
-    document.getElementById('nav-' + v)?.classList.toggle('active', v === view);
+    document.getElementById('nav-'+v)?.classList.toggle('active', v === view);
   });
-  switch (view) {
+  switch(view) {
     case 'dashboard':       renderDashboard(); break;
     case 'campaigns':       renderCampaigns(); break;
     case 'reports':         renderReports(); break;
@@ -815,70 +599,65 @@ function navigate(view, params = {}) {
   }
 }
 
-// ── DASHBOARD ─────────────────────────────────────
+// ── DASHBOARD ────────────────────────────────────
 function renderDashboard() {
   document.getElementById('topbar-title').textContent = '대시보드';
   document.getElementById('topbar-actions').innerHTML = '';
 
   const active = campaigns.filter(c => c.status === 'active');
-  const totals = sumCampaigns(active);
-  const avgCPM = totals.impressions
-    ? Math.round(totals.budget / (totals.impressions / 1000))
-    : 0;
+  const totals  = sumCampaigns(active);
+  const avgCPM  = totals.impressions ? Math.round(totals.budget / (totals.impressions / 1000)) : 0;
 
-  // 14일 추이 (활성 전체 합산)
   const labels = [], impData = [], reachData = [];
   for (let i = 13; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    labels.push(d.toLocaleDateString('ko', { month: 'short', day: 'numeric' }));
+    labels.push(d.toLocaleDateString('ko', { month:'short', day:'numeric' }));
     let imp = 0, reach = 0;
     active.forEach(c => {
       if (!c.start_date || new Date(c.start_date) > d) return;
       const seed = d.getDate() + d.getMonth() * 31;
       const v = 0.80 + (seed % 9) * 0.04;
-      const rate = SLOT_IMP[c.slot] || SLOT_IMP.D;
-      const ii = Math.floor((c.tablets || 0) * rate * v);
-      imp   += ii;
-      reach += Math.floor(ii * REACH_RATIO);
+      const ii = Math.floor((c.tablets||0) * (SLOT_IMP[c.slot]||SLOT_IMP.D) * v);
+      imp += ii; reach += Math.floor(ii * REACH_RATIO);
     });
     impData.push(imp); reachData.push(reach);
   }
 
   const recent = campaigns.slice(0, 5);
-  const statusCount = ['active','paused','draft','completed'].map(s => campaigns.filter(c => c.status === s).length);
+  const statusCount = ['active','paused','draft','completed'].map(s => campaigns.filter(c=>c.status===s).length);
 
   document.getElementById('content').innerHTML = `
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-label">집행 매장 수 (활성)</div>
-        <div class="metric-value">${totals.tablets.toLocaleString()}<span style="font-size:14px;color:#444;font-weight:500"> 대</span></div>
-        <div class="metric-sub ${active.length ? 'up' : ''}">활성 캠페인 ${active.length}개</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">집행 매장 수 (활성)</div>
+        <div class="stat-value">${totals.tablets.toLocaleString()}<span style="font-size:14px;color:#9ca3af;font-weight:500"> 대</span></div>
+        <div class="stat-sub ${active.length?'up':''}">활성 캠페인 ${active.length}개</div>
       </div>
-      <div class="metric-card">
-        <div class="metric-label">노출 추정</div>
-        <div class="metric-value">${fmtNum(totals.impressions)}</div>
-        <div class="metric-sub">도달 인원 추정 ${fmtNum(totals.reach)}명</div>
+      <div class="stat-card">
+        <div class="stat-label">노출 추정</div>
+        <div class="stat-value">${fmtNum(totals.impressions)}</div>
+        <div class="stat-sub">도달 인원 추정 ${fmtNum(totals.reach)}명</div>
       </div>
-      <div class="metric-card">
-        <div class="metric-label">평균 CPM</div>
-        <div class="metric-value">${avgCPM ? fmtWon(avgCPM) : '—'}</div>
-        <div class="metric-sub">계약금액 / 노출 1,000회 기준</div>
+      <div class="stat-card">
+        <div class="stat-label">평균 CPM</div>
+        <div class="stat-value" style="font-size:20px">${avgCPM ? fmtWon(avgCPM) : '—'}</div>
+        <div class="stat-sub">계약금액 / 노출 1,000회</div>
       </div>
-      <div class="metric-card">
-        <div class="metric-label">총 계약금액</div>
-        <div class="metric-value">${fmtMoney(totals.budget)}</div>
-        <div class="metric-sub">활성 캠페인 기준</div>
+      <div class="stat-card">
+        <div class="stat-label">총 계약금액</div>
+        <div class="stat-value" style="font-size:20px">${fmtMoney(totals.budget)}</div>
+        <div class="stat-sub">활성 캠페인 기준</div>
       </div>
     </div>
 
     <div class="chart-grid">
       <div class="card">
         <div class="chart-title">노출 / 도달 인원 추이 (최근 14일)</div>
-        <canvas id="ch-trend" height="170"></canvas>
+        <canvas id="ch-trend" height="160"></canvas>
       </div>
       <div class="card">
         <div class="chart-title">캠페인 상태 분포</div>
-        <canvas id="ch-status" height="170"></canvas>
+        <canvas id="ch-status" height="160"></canvas>
       </div>
     </div>
 
@@ -895,65 +674,54 @@ function renderDashboard() {
           <button class="btn btn-primary" onclick="navigate('campaigns')">캠페인 만들기</button>
         </div>
       ` : `
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>캠페인명</th><th>구좌</th><th>상태</th>
-              <th>매장 수</th><th>노출 추정</th><th>도달 인원</th><th>CPM</th>
-            </tr></thead>
-            <tbody>
-              ${recent.map(c => `
-                <tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
-                  <td><div class="camp-name">${escHtml(c.name)}</div></td>
-                  <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
-                  <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
-                  <td>${(c.tablets||0).toLocaleString()}대</td>
-                  <td>${fmtNum(estimateImpressions(c))}</td>
-                  <td>${fmtNum(estimateReach(c))}명</td>
-                  <td>${calcCPM(c) ? fmtWon(calcCPM(c)) : '—'}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>캠페인명</th><th>구좌</th><th>상태</th>
+            <th>매장 수</th><th>노출 추정</th><th>도달 인원</th><th>CPM</th>
+          </tr></thead>
+          <tbody>${recent.map(c=>`
+            <tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
+              <td><div class="camp-name">${escHtml(c.name)}</div></td>
+              <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
+              <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+              <td>${(c.tablets||0).toLocaleString()}대</td>
+              <td>${fmtNum(estimateImpressions(c))}</td>
+              <td>${fmtNum(estimateReach(c))}명</td>
+              <td>${calcCPM(c)?fmtWon(calcCPM(c)):'—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>
       `}
     </div>
   `;
 
-  // 추이 차트
   const ctx1 = document.getElementById('ch-trend')?.getContext('2d');
   if (ctx1) charts.trend = new Chart(ctx1, {
     type: 'line',
     data: { labels, datasets: [
-      { label:'노출 추정', data:impData, borderColor:'#ffffff', backgroundColor:'rgba(255,255,255,0.04)', borderWidth:2, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
-      { label:'도달 인원', data:reachData, borderColor:'#3ddc84', backgroundColor:'rgba(61,220,132,0.04)', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
+      { label:'노출 추정', data:impData, borderColor:'#073763', backgroundColor:'rgba(7,55,99,0.06)', borderWidth:2, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
+      { label:'도달 인원', data:reachData, borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,0.06)', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
     ]},
     options: {
       responsive:true,
-      plugins:{ legend:{ labels:{ color:'#555', font:{size:11}, boxWidth:10, boxHeight:10 }}},
+      plugins:{ legend:{ labels:{ color:'#6b7280', font:{size:11}, boxWidth:10 }}},
       scales:{
-        x:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11},maxTicksLimit:7} },
-        y:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11},callback:v=>fmtNum(v)} },
+        x:{ grid:{color:'#f3f4f6'}, ticks:{color:'#9ca3af',font:{size:11},maxTicksLimit:7} },
+        y:{ grid:{color:'#f3f4f6'}, ticks:{color:'#9ca3af',font:{size:11},callback:v=>fmtNum(v)} },
       },
       interaction:{ intersect:false, mode:'index' },
     }
   });
 
-  // 상태 도넛
   const ctx2 = document.getElementById('ch-status')?.getContext('2d');
   if (ctx2) charts.status = new Chart(ctx2, {
     type: 'doughnut',
-    data: {
-      labels: ['활성','일시정지','초안','완료'],
-      datasets: [{ data: statusCount, backgroundColor:['rgba(61,220,132,0.8)','rgba(251,191,36,0.8)','rgba(80,80,80,0.5)','rgba(165,180,252,0.8)'], borderWidth:0 }],
-    },
-    options: {
-      responsive:true, cutout:'68%',
-      plugins:{ legend:{ position:'bottom', labels:{ color:'#555', font:{size:11}, padding:12, boxWidth:10, boxHeight:10 }}},
-    }
+    data: { labels:['활성','일시정지','초안','완료'], datasets:[{ data:statusCount, backgroundColor:['#16a34a','#ca8a04','#9ca3af','#7c3aed'], borderWidth:0 }] },
+    options: { responsive:true, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{ color:'#6b7280', font:{size:11}, padding:12, boxWidth:10 }}}}
   });
 }
 
-// ── CAMPAIGNS ─────────────────────────────────────
+// ── CAMPAIGNS ────────────────────────────────────
 function renderCampaigns() {
   document.getElementById('topbar-title').textContent = '캠페인';
   document.getElementById('topbar-actions').innerHTML = `
@@ -963,17 +731,17 @@ function renderCampaigns() {
     </button>`;
 
   const counts = { all: campaigns.length };
-  ['active','paused','draft','completed'].forEach(s => { counts[s] = campaigns.filter(c => c.status === s).length; });
-  const filtered = campFilter === 'all' ? campaigns : campaigns.filter(c => c.status === campFilter);
+  ['active','paused','draft','completed'].forEach(s => { counts[s] = campaigns.filter(c=>c.status===s).length; });
+  const filtered = campFilter==='all' ? campaigns : campaigns.filter(c=>c.status===campFilter);
 
   document.getElementById('content').innerHTML = `
     <div class="tab-bar">
-      ${[['all','전체'],['active','활성'],['paused','일시정지'],['draft','초안']].map(([v,l]) => `
+      ${[['all','전체'],['active','활성'],['paused','일시정지'],['draft','초안']].map(([v,l])=>`
         <button class="tab-btn ${campFilter===v?'active':''}" onclick="setCampFilter('${v}')">${l} (${counts[v]})</button>
       `).join('')}
     </div>
     <div class="card">
-      ${filtered.length === 0 ? `
+      ${filtered.length===0 ? `
         <div class="empty-state">
           <div class="empty-state-icon">📢</div>
           <div class="empty-state-title">${campFilter==='all'?'캠페인이 없습니다':'해당 캠페인이 없습니다'}</div>
@@ -981,116 +749,95 @@ function renderCampaigns() {
           ${campFilter==='all'?'<button class="btn btn-primary" onclick="showCreateModal()">첫 캠페인 만들기</button>':''}
         </div>
       ` : `
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>캠페인명</th><th>구좌</th><th>상태</th>
-              <th>매장 수</th><th>기간</th><th>노출 추정</th>
-              <th>도달 인원</th><th>CPM</th><th>계약금액</th><th></th>
-            </tr></thead>
-            <tbody>
-              ${filtered.map(c => {
-                const period = c.start_date
-                  ? c.start_date + (c.end_date ? ' ~ ' + c.end_date : ' ~')
-                  : '-';
-                return `<tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
-                  <td><div class="camp-name">${escHtml(c.name)}</div></td>
-                  <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
-                  <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
-                  <td>${(c.tablets||0).toLocaleString()}대</td>
-                  <td style="font-size:12px;color:#444">${period}</td>
-                  <td>${fmtNum(estimateImpressions(c))}</td>
-                  <td>${fmtNum(estimateReach(c))}명</td>
-                  <td>${calcCPM(c) ? fmtWon(calcCPM(c)) : '—'}</td>
-                  <td>${fmtMoney(c.total_budget||0)}</td>
-                  <td onclick="event.stopPropagation()" style="width:1px">
-                    <div style="display:flex;gap:4px;padding-right:4px">
-                      ${c.status==='active'
-                        ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickStatus('${c.id}','paused')">정지</button>`
-                        : `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickStatus('${c.id}','active')">활성화</button>`}
-                      <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();confirmDelete('${c.id}')">삭제</button>
-                    </div>
-                  </td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>캠페인명</th><th>구좌</th><th>상태</th><th>매장 수</th>
+            <th>기간</th><th>노출 추정</th><th>도달 인원</th><th>CPM</th><th>계약금액</th><th></th>
+          </tr></thead>
+          <tbody>${filtered.map(c=>{
+            const period = c.start_date ? c.start_date+(c.end_date?' ~ '+c.end_date:' ~') : '-';
+            return `<tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
+              <td><div class="camp-name">${escHtml(c.name)}</div></td>
+              <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
+              <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+              <td>${(c.tablets||0).toLocaleString()}대</td>
+              <td style="color:#9ca3af;font-size:12px">${period}</td>
+              <td>${fmtNum(estimateImpressions(c))}</td>
+              <td>${fmtNum(estimateReach(c))}명</td>
+              <td>${calcCPM(c)?fmtWon(calcCPM(c)):'—'}</td>
+              <td>${fmtMoney(c.total_budget||0)}</td>
+              <td onclick="event.stopPropagation()" style="width:1px">
+                <div style="display:flex;gap:4px;padding-right:4px">
+                  ${c.status==='active'
+                    ?`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickStatus('${c.id}','paused')">정지</button>`
+                    :`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();quickStatus('${c.id}','active')">활성화</button>`}
+                  <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();confirmDelete('${c.id}')">삭제</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table></div>
       `}
     </div>`;
 }
 
 function setCampFilter(f) { campFilter = f; renderCampaigns(); }
-
-async function quickStatus(id, status) {
-  await updateCampaignStatus(id, status);
-  renderCampaigns();
-  showToast(status === 'active' ? '캠페인이 활성화되었습니다.' : '캠페인이 일시정지되었습니다.');
-}
-
+async function quickStatus(id, status) { await updateCampaignStatus(id, status); renderCampaigns(); showToast(status==='active'?'캠페인이 활성화되었습니다.':'캠페인이 일시정지되었습니다.'); }
 async function confirmDelete(id) {
-  const c = campaigns.find(x => x.id === id);
+  const c = campaigns.find(x=>x.id===id);
   if (!confirm(`"${c?.name}" 캠페인을 삭제하시겠습니까?`)) return;
-  await deleteCampaign(id);
-  renderCampaigns();
-  showToast('캠페인이 삭제되었습니다.');
+  await deleteCampaign(id); renderCampaigns(); showToast('캠페인이 삭제되었습니다.');
 }
 
-// ── CAMPAIGN DETAIL ───────────────────────────────
+// ── CAMPAIGN DETAIL ──────────────────────────────
 function renderCampaignDetail(id) {
-  const c = campaigns.find(x => x.id === id);
+  const c = campaigns.find(x=>x.id===id);
   if (!c) { navigate('campaigns'); return; }
   selectedCampaignId = id;
   document.getElementById('topbar-title').textContent = c.name;
   document.getElementById('topbar-actions').innerHTML = `
     <div style="display:flex;gap:8px">
       ${c.status==='active'
-        ? `<button class="btn btn-secondary btn-sm" onclick="detailStatus('paused')">일시정지</button>`
-        : `<button class="btn btn-secondary btn-sm" onclick="detailStatus('active')">활성화</button>`}
+        ?`<button class="btn btn-secondary btn-sm" onclick="detailStatus('paused')">일시정지</button>`
+        :`<button class="btn btn-secondary btn-sm" onclick="detailStatus('active')">활성화</button>`}
       <button class="btn btn-danger btn-sm" onclick="detailDelete()">삭제</button>
     </div>`;
 
   const trend = getDailyTrend(c, 14);
   const days  = getCampaignDays(c);
-  const cpm   = calcCPM(c);
-  const cpt   = calcCPT(c);
   const t     = c.targeting || {};
 
   document.getElementById('content').innerHTML = `
     <button class="back-btn" onclick="navigate('campaigns')">← 캠페인 목록</button>
-
     <div class="detail-stats">
       <div class="detail-stat">
-        <div class="metric-label">구좌</div>
+        <div class="stat-label">구좌</div>
         <div style="margin-top:10px"><span class="slot-badge slot-${c.slot||'D'}" style="font-size:13px;padding:4px 12px">${c.slot||'D'}구좌</span></div>
       </div>
       <div class="detail-stat">
-        <div class="metric-label">상태</div>
+        <div class="stat-label">상태</div>
         <div style="margin-top:10px"><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></div>
       </div>
       <div class="detail-stat">
-        <div class="metric-label">집행 매장 수</div>
-        <div class="metric-value" style="font-size:22px;margin-top:8px">${(c.tablets||0).toLocaleString()}<span style="font-size:13px;color:#444"> 대</span></div>
+        <div class="stat-label">집행 매장 수</div>
+        <div class="stat-value" style="font-size:22px;margin-top:8px">${(c.tablets||0).toLocaleString()}<span style="font-size:13px;color:#9ca3af"> 대</span></div>
       </div>
       <div class="detail-stat">
-        <div class="metric-label">노출 추정</div>
-        <div class="metric-value" style="font-size:22px;margin-top:8px">${fmtNum(estimateImpressions(c))}</div>
-        <div style="font-size:11px;color:#2a2a2a;margin-top:4px">${days}일 기준</div>
+        <div class="stat-label">노출 추정</div>
+        <div class="stat-value" style="font-size:22px;margin-top:8px">${fmtNum(estimateImpressions(c))}</div>
+        <div class="stat-sub">${days}일 기준</div>
       </div>
       <div class="detail-stat">
-        <div class="metric-label">도달 인원 추정</div>
-        <div class="metric-value" style="font-size:22px;margin-top:8px">${fmtNum(estimateReach(c))}<span style="font-size:13px;color:#444"> 명</span></div>
-        <div style="font-size:11px;color:#2a2a2a;margin-top:4px">노출 × 2.5명 기준</div>
+        <div class="stat-label">도달 인원 추정</div>
+        <div class="stat-value" style="font-size:22px;margin-top:8px">${fmtNum(estimateReach(c))}<span style="font-size:13px;color:#9ca3af"> 명</span></div>
+        <div class="stat-sub">노출 × 2.5명</div>
       </div>
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <div class="chart-title">일별 노출 / 도달 인원 추이 (최근 14일)</div>
-      ${trend.length ? `<canvas id="ch-detail" height="160"></canvas>` : `
-        <div style="text-align:center;padding:40px;color:#333;font-size:13px">
-          ${c.status === 'active' ? '데이터 집계 중...' : '활성 상태일 때 추이가 표시됩니다'}
-        </div>
-      `}
+      <div class="chart-title">일별 노출 / 도달 추이 (최근 14일)</div>
+      ${trend.length?`<canvas id="ch-detail" height="150"></canvas>`:`<div style="text-align:center;padding:40px;color:#9ca3af;font-size:13px">${c.status==='active'?'데이터 집계 중...':'활성 상태일 때 표시됩니다'}</div>`}
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -1099,18 +846,18 @@ function renderCampaignDetail(id) {
         ${infoRow('구좌', `${c.slot||'D'}구좌 — ${slotDesc(c.slot)}`)}
         ${infoRow('집행 태블릿', `${(c.tablets||0).toLocaleString()}대`)}
         ${infoRow('계약금액', fmtMoney(c.total_budget||0))}
-        ${infoRow('집행 기간', days + '일')}
+        ${infoRow('집행 기간', days+'일')}
         ${infoRow('시작일', c.start_date||'-')}
         ${infoRow('종료일', c.end_date||'미설정')}
       </div>
       <div class="card">
         <div class="section-title" style="margin-bottom:18px">과금 지표</div>
-        ${infoRow('CPT 단가 (대/월)', cpt ? fmtWon(cpt) : '—')}
-        ${infoRow('CPM (추정)', cpm ? fmtWon(cpm) : '—')}
+        ${infoRow('CPT 단가 (대/월)', calcCPT(c)?fmtWon(calcCPT(c)):'—')}
+        ${infoRow('CPM (추정)', calcCPM(c)?fmtWon(calcCPM(c)):'—')}
         ${infoRow('노출 추정', fmtNum(estimateImpressions(c)))}
-        ${infoRow('도달 인원 추정', fmtNum(estimateReach(c)) + '명')}
+        ${infoRow('도달 인원 추정', fmtNum(estimateReach(c))+'명')}
         ${infoRow('지역', (t.regions||[]).join(', ')||'전국')}
-        ${infoRow('업종 카테고리', (t.categories||[]).join(', ')||'전체')}
+        ${infoRow('업종', (t.categories||[]).join(', ')||'전체')}
       </div>
     </div>
   `;
@@ -1120,181 +867,125 @@ function renderCampaignDetail(id) {
     if (ctx) charts.detail = new Chart(ctx, {
       type: 'bar',
       data: { labels: trend.map(s=>s.date), datasets: [
-        { label:'노출 추정', data:trend.map(s=>s.imp), backgroundColor:'rgba(255,255,255,0.07)', borderColor:'rgba(255,255,255,0.15)', borderWidth:1, borderRadius:3, yAxisID:'y' },
-        { label:'도달 인원', data:trend.map(s=>s.reach), backgroundColor:'rgba(61,220,132,0.45)', borderColor:'rgba(61,220,132,0.7)', borderWidth:1, borderRadius:3, yAxisID:'y1' },
+        { label:'노출 추정', data:trend.map(s=>s.imp), backgroundColor:'rgba(7,55,99,0.1)', borderColor:'rgba(7,55,99,0.3)', borderWidth:1, borderRadius:3, yAxisID:'y' },
+        { label:'도달 인원', data:trend.map(s=>s.reach), backgroundColor:'rgba(22,163,74,0.5)', borderColor:'rgba(22,163,74,0.7)', borderWidth:1, borderRadius:3, yAxisID:'y1' },
       ]},
       options: {
         responsive:true,
-        plugins:{ legend:{ labels:{ color:'#555', font:{size:11}, boxWidth:10, boxHeight:10 }}},
+        plugins:{ legend:{ labels:{ color:'#6b7280', font:{size:11}, boxWidth:10 }}},
         scales:{
-          x:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11}} },
-          y:{ grid:{color:'#141414'}, ticks:{color:'#888',font:{size:11},callback:v=>fmtNum(v)}, position:'left' },
-          y1:{ grid:{display:false}, ticks:{color:'#3ddc84',font:{size:11},callback:v=>fmtNum(v)}, position:'right' },
-        },
+          x:{ grid:{color:'#f3f4f6'}, ticks:{color:'#9ca3af',font:{size:11}} },
+          y:{ grid:{color:'#f3f4f6'}, ticks:{color:'#6b7280',font:{size:11},callback:v=>fmtNum(v)}, position:'left' },
+          y1:{ grid:{display:false}, ticks:{color:'#16a34a',font:{size:11},callback:v=>fmtNum(v)}, position:'right' },
+        }
       }
     });
   }
 }
 
 function infoRow(label, value) {
-  return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #141414;font-size:13px">
-    <span style="color:#444">${label}</span>
-    <span style="color:#ccc">${value}</span>
+  return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f4f6;font-size:13px">
+    <span style="color:#9ca3af">${label}</span><span style="color:var(--text);font-weight:500">${value}</span>
   </div>`;
 }
 
-async function detailStatus(status) {
-  await updateCampaignStatus(selectedCampaignId, status);
-  renderCampaignDetail(selectedCampaignId);
-  showToast(status==='active'?'캠페인이 활성화되었습니다.':'캠페인이 일시정지되었습니다.');
-}
-
+async function detailStatus(status) { await updateCampaignStatus(selectedCampaignId, status); renderCampaignDetail(selectedCampaignId); showToast(status==='active'?'활성화되었습니다.':'일시정지되었습니다.'); }
 async function detailDelete() {
-  const c = campaigns.find(x => x.id === selectedCampaignId);
+  const c = campaigns.find(x=>x.id===selectedCampaignId);
   if (!confirm(`"${c?.name}" 캠페인을 삭제하시겠습니까?`)) return;
-  await deleteCampaign(selectedCampaignId);
-  navigate('campaigns');
-  showToast('캠페인이 삭제되었습니다.');
+  await deleteCampaign(selectedCampaignId); navigate('campaigns'); showToast('삭제되었습니다.');
 }
 
-// ── REPORTS ───────────────────────────────────────
+// ── REPORTS ──────────────────────────────────────
 function renderReports() {
   document.getElementById('topbar-title').textContent = '보고서';
   document.getElementById('topbar-actions').innerHTML = '';
 
-  const active = campaigns.filter(c => c.status === 'active');
-  const totals = sumCampaigns(active);
-  const avgCPM = totals.impressions ? Math.round(totals.budget / (totals.impressions / 1000)) : 0;
+  const active = campaigns.filter(c=>c.status==='active');
+  const totals  = sumCampaigns(active);
+  const avgCPM  = totals.impressions ? Math.round(totals.budget/(totals.impressions/1000)) : 0;
 
   const days30 = [];
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const label = d.toLocaleDateString('ko', { month:'short', day:'numeric' });
-    let imp = 0, reach = 0;
-    active.forEach(c => {
-      if (!c.start_date || new Date(c.start_date) > d) return;
-      const seed = d.getDate() + d.getMonth() * 31;
-      const v = 0.80 + (seed % 9) * 0.04;
-      const rate = SLOT_IMP[c.slot] || SLOT_IMP.D;
-      const ii = Math.floor((c.tablets || 0) * rate * v);
-      imp   += ii;
-      reach += Math.floor(ii * REACH_RATIO);
+  for (let i=29;i>=0;i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    let imp=0,reach=0;
+    active.forEach(c=>{
+      if (!c.start_date||new Date(c.start_date)>d) return;
+      const seed=d.getDate()+d.getMonth()*31, v=0.80+(seed%9)*0.04;
+      const ii=Math.floor((c.tablets||0)*(SLOT_IMP[c.slot]||SLOT_IMP.D)*v);
+      imp+=ii; reach+=Math.floor(ii*REACH_RATIO);
     });
-    days30.push({ label, imp, reach });
+    days30.push({ label:d.toLocaleDateString('ko',{month:'short',day:'numeric'}), imp, reach });
   }
 
-  const campRows = [...campaigns].map(c => ({
-    ...c,
-    _imp: estimateImpressions(c),
-    _reach: estimateReach(c),
-    _cpm: calcCPM(c),
-    _cpt: calcCPT(c),
-  })).sort((a, b) => b._imp - a._imp);
+  const campRows = [...campaigns].map(c=>({ ...c, _imp:estimateImpressions(c), _reach:estimateReach(c), _cpm:calcCPM(c), _cpt:calcCPT(c) })).sort((a,b)=>b._imp-a._imp);
 
   document.getElementById('content').innerHTML = `
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-label">총 노출 추정</div>
-        <div class="metric-value">${fmtNum(totals.impressions)}</div>
-        <div class="metric-sub">활성 캠페인 기준</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">총 도달 인원 추정</div>
-        <div class="metric-value">${fmtNum(totals.reach)}<span style="font-size:14px;color:#444;font-weight:500"> 명</span></div>
-        <div class="metric-sub">노출 × 2.5명 기준</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">평균 CPM</div>
-        <div class="metric-value">${avgCPM ? fmtWon(avgCPM) : '—'}</div>
-        <div class="metric-sub">계약금액 / 노출 1,000회</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">총 계약금액</div>
-        <div class="metric-value">${fmtMoney(totals.budget)}</div>
-        <div class="metric-sub">활성 캠페인 ${active.length}개</div>
-      </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">총 노출 추정</div><div class="stat-value">${fmtNum(totals.impressions)}</div><div class="stat-sub">활성 캠페인 기준</div></div>
+      <div class="stat-card"><div class="stat-label">총 도달 인원 추정</div><div class="stat-value">${fmtNum(totals.reach)}<span style="font-size:14px;color:#9ca3af;font-weight:500"> 명</span></div><div class="stat-sub">노출 × 2.5명</div></div>
+      <div class="stat-card"><div class="stat-label">평균 CPM</div><div class="stat-value" style="font-size:20px">${avgCPM?fmtWon(avgCPM):'—'}</div><div class="stat-sub">계약금액 / 노출 1,000회</div></div>
+      <div class="stat-card"><div class="stat-label">총 계약금액</div><div class="stat-value" style="font-size:20px">${fmtMoney(totals.budget)}</div><div class="stat-sub">활성 캠페인 ${active.length}개</div></div>
     </div>
-
     <div class="card" style="margin-bottom:16px">
       <div class="chart-title">일별 노출 / 도달 인원 추이 (최근 30일)</div>
-      <canvas id="ch-report" height="150"></canvas>
+      <canvas id="ch-report" height="140"></canvas>
     </div>
-
     <div class="card">
       <div class="section-title" style="margin-bottom:18px">캠페인별 성과</div>
-      ${campRows.length === 0 ? `
-        <div class="empty-state">
-          <div class="empty-state-title">캠페인이 없습니다</div>
-          <div class="empty-state-desc">캠페인을 만들면 여기에 성과가 표시됩니다</div>
-        </div>
-      ` : `
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>캠페인명</th><th>구좌</th><th>상태</th>
-              <th>매장 수</th><th>노출 추정</th><th>도달 인원</th>
-              <th>CPT 단가/대</th><th>CPM</th><th>계약금액</th>
-            </tr></thead>
-            <tbody>
-              ${campRows.map(c => `
-                <tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
-                  <td><div class="camp-name">${escHtml(c.name)}</div></td>
-                  <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
-                  <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
-                  <td>${(c.tablets||0).toLocaleString()}대</td>
-                  <td>${fmtNum(c._imp)}</td>
-                  <td>${fmtNum(c._reach)}명</td>
-                  <td>${c._cpt ? fmtWon(c._cpt) : '—'}</td>
-                  <td>${c._cpm ? fmtWon(c._cpm) : '—'}</td>
-                  <td>${fmtMoney(c.total_budget||0)}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
+      ${campRows.length===0?`<div class="empty-state"><div class="empty-state-title">캠페인이 없습니다</div></div>`:`
+        <div class="table-wrap"><table>
+          <thead><tr><th>캠페인명</th><th>구좌</th><th>상태</th><th>매장 수</th><th>노출 추정</th><th>도달 인원</th><th>CPT 단가/대</th><th>CPM</th><th>계약금액</th></tr></thead>
+          <tbody>${campRows.map(c=>`
+            <tr onclick="navigate('campaign-detail',{id:'${c.id}'})">
+              <td><div class="camp-name">${escHtml(c.name)}</div></td>
+              <td><span class="slot-badge slot-${c.slot||'D'}">${c.slot||'D'}구좌</span></td>
+              <td><span class="status-badge badge-${c.status}">${statusLabel(c.status)}</span></td>
+              <td>${(c.tablets||0).toLocaleString()}대</td>
+              <td>${fmtNum(c._imp)}</td><td>${fmtNum(c._reach)}명</td>
+              <td>${c._cpt?fmtWon(c._cpt):'—'}</td><td>${c._cpm?fmtWon(c._cpm):'—'}</td>
+              <td>${fmtMoney(c.total_budget||0)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>
       `}
-    </div>
-  `;
+    </div>`;
 
   const ctx = document.getElementById('ch-report')?.getContext('2d');
   if (ctx) charts.report = new Chart(ctx, {
-    type: 'line',
-    data: { labels: days30.map(s=>s.label), datasets: [
-      { label:'노출 추정', data:days30.map(s=>s.imp), borderColor:'#ffffff', backgroundColor:'rgba(255,255,255,0.03)', borderWidth:2, fill:true, tension:0.4, pointRadius:0, yAxisID:'y' },
-      { label:'도달 인원', data:days30.map(s=>s.reach), borderColor:'#3ddc84', backgroundColor:'rgba(61,220,132,0.03)', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0, yAxisID:'y1' },
+    type:'line',
+    data:{ labels:days30.map(s=>s.label), datasets:[
+      { label:'노출 추정', data:days30.map(s=>s.imp), borderColor:'#073763', backgroundColor:'rgba(7,55,99,0.05)', borderWidth:2, fill:true, tension:0.4, pointRadius:0, yAxisID:'y' },
+      { label:'도달 인원', data:days30.map(s=>s.reach), borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,0.05)', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0, yAxisID:'y1' },
     ]},
-    options: {
+    options:{
       responsive:true,
-      plugins:{ legend:{ labels:{ color:'#555', font:{size:11}, boxWidth:10, boxHeight:10 }}},
+      plugins:{ legend:{ labels:{ color:'#6b7280', font:{size:11}, boxWidth:10 }}},
       scales:{
-        x:{ grid:{color:'#141414'}, ticks:{color:'#444',font:{size:11},maxTicksLimit:10} },
-        y:{ grid:{color:'#141414'}, ticks:{color:'#888',font:{size:11},callback:v=>fmtNum(v)}, position:'left' },
-        y1:{ grid:{display:false}, ticks:{color:'#3ddc84',font:{size:11},callback:v=>fmtNum(v)}, position:'right' },
+        x:{ grid:{color:'#f3f4f6'}, ticks:{color:'#9ca3af',font:{size:11},maxTicksLimit:10} },
+        y:{ grid:{color:'#f3f4f6'}, ticks:{color:'#6b7280',font:{size:11},callback:v=>fmtNum(v)}, position:'left' },
+        y1:{ grid:{display:false}, ticks:{color:'#16a34a',font:{size:11},callback:v=>fmtNum(v)}, position:'right' },
       },
-      interaction:{ intersect:false, mode:'index' },
+      interaction:{intersect:false,mode:'index'},
     }
   });
 }
 
-// ── CREATE MODAL ──────────────────────────────────
+// ── CREATE MODAL ─────────────────────────────────
 function showCreateModal() {
-  createStep = 1;
-  createData = { slot: 'D', regions: [], categories: [], status: 'draft' };
+  createStep=1; createData={slot:'D',regions:[],categories:[],status:'draft'};
   renderCreateModal();
 }
 
 function renderCreateModal() {
-  const stepEl = (n, label) => {
-    const cls = createStep > n ? 'done' : createStep === n ? 'active' : '';
-    return `<div class="step ${cls}">
-      <div class="step-dot">${createStep > n ? '✓' : n}</div>
-      <span>${label}</span>
-    </div>`;
+  const stepEl = (n,label) => {
+    const cls = createStep>n?'done':createStep===n?'active':'';
+    return `<div class="step ${cls}"><div class="step-dot">${createStep>n?'✓':n}</div><span>${label}</span></div>`;
   };
 
-  let body = '';
-
-  if (createStep === 1) {
-    body = `
+  let body='';
+  if (createStep===1) {
+    body=`
       <div class="field">
         <label>캠페인 이름</label>
         <input type="text" id="c-name" placeholder="예: 2025 카스맥주 여름 캠페인" value="${escHtml(createData.name||'')}">
@@ -1302,21 +993,17 @@ function renderCreateModal() {
       <div class="field">
         <label>광고 구좌 선택</label>
         <div class="slot-selector">
-          <button class="slot-option ${createData.slot==='C'?'selected-C':''}" onclick="setSlot('C')">
-            <div class="slot-option-head">
-              <span class="slot-badge slot-C">C구좌</span>
-            </div>
+          <button class="slot-option ${createData.slot==='C'?'sel-C':''}" onclick="setSlot('C')">
+            <span class="slot-badge slot-C">C구좌</span>
             <div class="slot-option-name">주문 완료 직후</div>
             <div class="slot-option-desc">결제 완료 즉시 전체 화면 노출. QR 프로모션형에 최적.</div>
-            <div class="slot-option-when slot-C">트리거: 주문 완료 후 즉시</div>
+            <div class="slot-option-when">트리거: 주문 완료 후 즉시</div>
           </button>
-          <button class="slot-option ${createData.slot==='D'?'selected-D':''}" onclick="setSlot('D')">
-            <div class="slot-option-head">
-              <span class="slot-badge slot-D">D구좌</span>
-            </div>
+          <button class="slot-option ${createData.slot==='D'?'sel-D':''}" onclick="setSlot('D')">
+            <span class="slot-badge slot-D">D구좌</span>
             <div class="slot-option-name">대기 / 식사 중</div>
             <div class="slot-option-desc">주문 후 대기·식사 중 반복 노출. 브랜딩에 최적.</div>
-            <div class="slot-option-when slot-D">트리거: 주문 후 유휴 화면</div>
+            <div class="slot-option-when">트리거: 주문 후 유휴 화면</div>
           </button>
         </div>
       </div>
@@ -1327,65 +1014,40 @@ function renderCreateModal() {
           <option value="active" ${createData.status==='active'?'selected':''}>즉시 활성화</option>
         </select>
       </div>`;
-
-  } else if (createStep === 2) {
-    // 예산 미리보기 계산
-    const tablets = parseInt(createData.tablets) || 0;
-    const start   = createData.start_date || '';
-    const end     = createData.end_date   || '';
-    const budget  = parseInt(createData.total_budget) || 0;
-    const days    = (start && end) ? Math.max(0, Math.ceil((new Date(end) - new Date(start)) / 86400000)) : 0;
-    const rate    = SLOT_IMP[createData.slot] || SLOT_IMP.D;
-    const estImp  = tablets && days ? Math.floor(tablets * days * rate * 0.9) : 0;
-    const estReach= Math.floor(estImp * REACH_RATIO);
-    const cpm     = (budget && estImp) ? Math.round(budget / (estImp / 1000)) : 0;
-
-    body = `
+  } else if (createStep===2) {
+    const tablets=parseInt(createData.tablets)||0, start=createData.start_date||'', end=createData.end_date||'', budget=parseInt(createData.total_budget)||0;
+    const days=(start&&end)?Math.max(0,Math.ceil((new Date(end)-new Date(start))/86400000)):0;
+    const estImp=tablets&&days?Math.floor(tablets*days*(SLOT_IMP[createData.slot]||SLOT_IMP.D)*0.9):0;
+    const estReach=Math.floor(estImp*REACH_RATIO);
+    const cpm=(budget&&estImp)?Math.round(budget/(estImp/1000)):0;
+    body=`
       <div class="field">
         <label>집행 태블릿 수 (대)</label>
-        <input type="number" id="c-tablets" placeholder="예: 500" value="${createData.tablets||''}" min="1" step="1" oninput="syncCreateField('tablets',this.value)">
+        <input type="number" id="c-tablets" placeholder="예: 500" value="${createData.tablets||''}" min="1" oninput="syncField('tablets',this.value)">
       </div>
       <div class="input-row">
-        <div class="field">
-          <label>시작일</label>
-          <input type="date" id="c-start" value="${createData.start_date||new Date().toISOString().slice(0,10)}" oninput="syncCreateField('start_date',this.value)">
-        </div>
-        <div class="field">
-          <label>종료일</label>
-          <input type="date" id="c-end" value="${createData.end_date||''}" oninput="syncCreateField('end_date',this.value)">
-        </div>
+        <div class="field"><label>시작일</label><input type="date" id="c-start" value="${createData.start_date||new Date().toISOString().slice(0,10)}" oninput="syncField('start_date',this.value)"></div>
+        <div class="field"><label>종료일</label><input type="date" id="c-end" value="${createData.end_date||''}" oninput="syncField('end_date',this.value)"></div>
       </div>
       <div class="field">
         <label>총 계약금액 (₩)</label>
-        <input type="number" id="c-budget" placeholder="예: 1500000" value="${createData.total_budget||''}" min="0" step="10000" oninput="syncCreateField('total_budget',this.value)">
+        <input type="number" id="c-budget" placeholder="예: 1500000" value="${createData.total_budget||''}" min="0" step="10000" oninput="syncField('total_budget',this.value)">
       </div>
-      ${tablets && days && budget ? `
+      ${tablets&&days&&budget?`
         <div class="budget-preview">
-          <div class="bp-item">
-            <div class="bp-label">노출 추정</div>
-            <div class="bp-value">${fmtNum(estImp)}</div>
-          </div>
-          <div class="bp-item">
-            <div class="bp-label">도달 인원</div>
-            <div class="bp-value">${fmtNum(estReach)}명</div>
-          </div>
-          <div class="bp-item">
-            <div class="bp-label">CPM 추정</div>
-            <div class="bp-value">${fmtWon(cpm)}</div>
-          </div>
+          <div class="bp-item"><div class="bp-label">노출 추정</div><div class="bp-value">${fmtNum(estImp)}</div></div>
+          <div class="bp-item"><div class="bp-label">도달 인원</div><div class="bp-value">${fmtNum(estReach)}명</div></div>
+          <div class="bp-item"><div class="bp-label">CPM 추정</div><div class="bp-value">${fmtWon(cpm)}</div></div>
         </div>
-      ` : `
-        <div style="font-size:12px;color:#2a2a2a;margin-top:8px">태블릿 수, 기간, 금액 입력 시 예상 지표가 표시됩니다.</div>
-      `}`;
-
+      `:`<p style="font-size:12px;color:#9ca3af;margin-top:8px">태블릿 수, 기간, 금액 입력 시 예상 지표가 표시됩니다.</p>`}`;
   } else {
-    body = `
+    body=`
       <div class="field">
-        <label>지역 (선택 안 하면 전국)</label>
+        <label>지역 (미선택 시 전국)</label>
         <div class="tag-group">${REGIONS.map(r=>`<button class="tag ${createData.regions.includes(r)?'selected':''}" onclick="toggleTag('regions','${r}')">${r}</button>`).join('')}</div>
       </div>
       <div class="field">
-        <label>매장 업종 카테고리 (선택 안 하면 전체)</label>
+        <label>업종 카테고리 (미선택 시 전체)</label>
         <div class="tag-group">${CATEGORIES.map(c=>`<button class="tag ${createData.categories.includes(c)?'selected':''}" onclick="toggleTag('categories','${c}')">${c}</button>`).join('')}</div>
       </div>`;
   }
@@ -1397,15 +1059,13 @@ function renderCreateModal() {
         <div class="modal-title">캠페인 만들기</div>
         <div class="modal-desc">광고 구좌, 집행 규모, 기간을 설정하세요</div>
         <div class="steps">
-          ${stepEl(1,'구좌 / 기본')}
-          <div class="step-line"></div>
-          ${stepEl(2,'규모 / 예산')}
-          <div class="step-line"></div>
+          ${stepEl(1,'구좌 / 기본')}<div class="step-line"></div>
+          ${stepEl(2,'규모 / 예산')}<div class="step-line"></div>
           ${stepEl(3,'타겟팅')}
         </div>
         ${body}
         <div style="display:flex;gap:10px;margin-top:24px">
-          ${createStep > 1 ? `<button class="btn btn-secondary" onclick="createPrev()">이전</button>` : ''}
+          ${createStep>1?`<button class="btn btn-secondary" onclick="createPrev()">이전</button>`:''}
           <button class="btn btn-primary" id="modal-submit" style="flex:1" onclick="${createStep===3?'submitCreate()':'createNext()'}">
             ${createStep===3?'캠페인 만들기':'다음'}
           </button>
@@ -1414,215 +1074,110 @@ function renderCreateModal() {
     </div>`;
 }
 
-function setSlot(slot) { createData.slot = slot; renderCreateModal(); }
-
-function syncCreateField(key, val) {
-  createData[key] = val;
-  // 미리보기 리프레시 (step2에서만)
-  if (createStep === 2) {
-    const tablets = parseInt(document.getElementById('c-tablets')?.value) || 0;
-    const start   = document.getElementById('c-start')?.value || '';
-    const end     = document.getElementById('c-end')?.value || '';
-    const budget  = parseInt(document.getElementById('c-budget')?.value) || 0;
-    const days    = (start && end) ? Math.max(0, Math.ceil((new Date(end) - new Date(start)) / 86400000)) : 0;
-    const rate    = SLOT_IMP[createData.slot] || SLOT_IMP.D;
-    const estImp  = tablets && days ? Math.floor(tablets * days * rate * 0.9) : 0;
-    const estReach= Math.floor(estImp * REACH_RATIO);
-    const cpm     = (budget && estImp) ? Math.round(budget / (estImp / 1000)) : 0;
-    const prev    = document.querySelector('.budget-preview');
-    if (tablets && days && budget) {
-      const html = `
-        <div class="bp-item"><div class="bp-label">노출 추정</div><div class="bp-value">${fmtNum(estImp)}</div></div>
-        <div class="bp-item"><div class="bp-label">도달 인원</div><div class="bp-value">${fmtNum(estReach)}명</div></div>
-        <div class="bp-item"><div class="bp-label">CPM 추정</div><div class="bp-value">${fmtWon(cpm)}</div></div>`;
-      if (prev) { prev.innerHTML = html; }
-      else {
-        const tip = document.querySelector('.modal [style*="2a2a2a"]');
-        if (tip) {
-          const el = document.createElement('div');
-          el.className = 'budget-preview';
-          el.innerHTML = html;
-          tip.replaceWith(el);
-        }
-      }
-    }
-  }
-}
-
-function toggleTag(field, val) {
-  const arr = createData[field];
-  const idx = arr.indexOf(val);
-  if (idx === -1) arr.push(val); else arr.splice(idx, 1);
-  renderCreateModal();
-}
+function setSlot(slot) { createData.slot=slot; renderCreateModal(); }
+function syncField(key,val) { createData[key]=val; if(createStep===2) renderCreateModal(); }
+function toggleTag(field,val) { const a=createData[field],i=a.indexOf(val); if(i===-1)a.push(val);else a.splice(i,1); renderCreateModal(); }
 
 function createNext() {
-  if (createStep === 1) {
-    const name = document.getElementById('c-name').value.trim();
+  if (createStep===1) {
+    const name=document.getElementById('c-name').value.trim();
     if (!name) { alert('캠페인 이름을 입력해주세요.'); return; }
-    createData.name   = name;
-    createData.status = document.getElementById('c-status').value;
-  } else if (createStep === 2) {
-    const tablets = parseInt(document.getElementById('c-tablets').value);
-    const budget  = parseInt(document.getElementById('c-budget').value);
-    const start   = document.getElementById('c-start').value;
-    const end     = document.getElementById('c-end').value;
-    if (!tablets || tablets < 1)   { alert('집행 태블릿 수를 입력해주세요.'); return; }
-    if (!start)                     { alert('시작일을 선택해주세요.'); return; }
-    if (!end)                       { alert('종료일을 선택해주세요.'); return; }
-    if (new Date(end) <= new Date(start)) { alert('종료일은 시작일 이후여야 합니다.'); return; }
-    if (!budget || budget < 0)      { alert('계약금액을 입력해주세요.'); return; }
-    createData.tablets      = tablets;
-    createData.start_date   = start;
-    createData.end_date     = end;
-    createData.total_budget = budget;
+    createData.name=name; createData.status=document.getElementById('c-status').value;
+  } else if (createStep===2) {
+    const tablets=parseInt(document.getElementById('c-tablets').value);
+    const budget=parseInt(document.getElementById('c-budget').value);
+    const start=document.getElementById('c-start').value, end=document.getElementById('c-end').value;
+    if (!tablets||tablets<1) { alert('집행 태블릿 수를 입력해주세요.'); return; }
+    if (!start) { alert('시작일을 선택해주세요.'); return; }
+    if (!end) { alert('종료일을 선택해주세요.'); return; }
+    if (new Date(end)<=new Date(start)) { alert('종료일은 시작일 이후여야 합니다.'); return; }
+    if (!budget||budget<0) { alert('계약금액을 입력해주세요.'); return; }
+    createData.tablets=tablets; createData.start_date=start; createData.end_date=end; createData.total_budget=budget;
   }
-  createStep++;
-  renderCreateModal();
+  createStep++; renderCreateModal();
 }
-
 function createPrev() { createStep--; renderCreateModal(); }
 
 async function submitCreate() {
-  const btn = document.getElementById('modal-submit');
-  btn.disabled = true; btn.textContent = '생성 중...';
-  await createCampaign({
-    name:         createData.name,
-    slot:         createData.slot,
-    status:       createData.status,
-    tablets:      createData.tablets,
-    total_budget: createData.total_budget,
-    start_date:   createData.start_date,
-    end_date:     createData.end_date,
-    targeting: {
-      regions:    createData.regions,
-      categories: createData.categories,
-    },
-  });
-  closeModal();
-  navigate('campaigns');
-  showToast('캠페인이 생성되었습니다!');
+  const btn=document.getElementById('modal-submit');
+  btn.disabled=true; btn.textContent='생성 중...';
+  await createCampaign({ name:createData.name, slot:createData.slot, status:createData.status, tablets:createData.tablets, total_budget:createData.total_budget, start_date:createData.start_date, end_date:createData.end_date, targeting:{regions:createData.regions,categories:createData.categories} });
+  closeModal(); navigate('campaigns'); showToast('캠페인이 생성되었습니다!');
 }
+function closeModal() { document.getElementById('modal-container').innerHTML=''; }
 
-function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
-
-// ── HELPERS ───────────────────────────────────────
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function statusLabel(s) { return {active:'활성',paused:'일시정지',draft:'초안',completed:'완료'}[s]||s; }
-function slotDesc(slot) {
-  return slot === 'C' ? '주문 완료 직후' : '대기 / 식사 중';
-}
-
-// ── QR 생성기 ─────────────────────────────────────
-let qrInitialized = false;
+// ── QR 생성기 ────────────────────────────────────
 const QR_DEFAULTS = { fg:'#000000', bg:'#ffffff', borderColor:'#000000', borderStyle:'none', ec:'H', borderWidth:4, padding:10 };
-const QR_STAGE = 300;
-const QR_RAINBOW = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
-let qrState = { ...QR_DEFAULTS };
-let qrShortUrl = '';
-let qrTimer = null;
+const QR_STAGE    = 280;
+const QR_RAINBOW  = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#073763','#a855f7','#000000','#ffffff'];
+let qrState = { ...QR_DEFAULTS }, qrTimer = null;
 
 function renderQR() {
   document.getElementById('topbar-title').textContent = 'QR 코드 생성기';
   document.getElementById('topbar-actions').innerHTML = '';
   document.getElementById('content').innerHTML = `
     <div style="display:flex;gap:18px;align-items:flex-start;max-width:1100px;">
-      <!-- 설정 패널 -->
-      <div class="card" style="flex:0 0 560px;">
-        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">링크</div>
+      <div class="card" style="flex:0 0 540px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">링크</div>
         <div style="display:flex;gap:8px;margin-bottom:6px;">
           <input id="qr-url" type="text" placeholder="https://example.com" value="https://example.com" style="flex:1;min-width:0;">
           <button class="btn btn-primary btn-sm" id="qr-shorten-btn" onclick="qrShortenUrl()">링크 줄이기</button>
           <button class="btn btn-secondary btn-sm" onclick="qrReset()" title="초기화">↺</button>
-          <button class="btn btn-secondary btn-sm" id="qr-copy-btn" onclick="qrCopyUrl()" title="복사">
+          <button class="btn btn-secondary btn-sm" id="qr-copy-btn" onclick="qrCopyUrl()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
         </div>
-        <div id="qr-short-msg" style="font-size:12px;color:#f87171;min-height:16px;margin-bottom:12px;"></div>
+        <div id="qr-short-msg" style="font-size:12px;color:#ef4444;min-height:16px;margin-bottom:12px;"></div>
 
-        <div style="height:1px;background:#1a1a1a;margin:14px 0;"></div>
-        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">색상</div>
+        <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">색상</div>
         <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:14px;">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:9px;">QR 색상</div>
-            <div id="qr-fg-palette" style="display:flex;gap:7px;align-items:center;flex-wrap:nowrap;"></div>
-          </div>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:9px;">배경 색상</div>
-            <div id="qr-bg-palette" style="display:flex;gap:7px;align-items:center;flex-wrap:nowrap;"></div>
-          </div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--label);margin-bottom:9px;">QR 색상</div><div id="qr-fg-palette" style="display:flex;gap:7px;flex-wrap:nowrap;"></div></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--label);margin-bottom:9px;">배경 색상</div><div id="qr-bg-palette" style="display:flex;gap:7px;flex-wrap:nowrap;"></div></div>
         </div>
 
-        <div style="height:1px;background:#1a1a1a;margin:14px 0;"></div>
-        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">테두리</div>
+        <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">테두리</div>
         <div style="display:flex;gap:10px;margin-bottom:14px;">
           ${[['none','없음'],['solid','실선'],['rounded','둥근'],['dashed','점선']].map(([v,l])=>`
             <button class="qr-bstyle-btn ${qrState.borderStyle===v?'qr-bstyle-active':''}" onclick="qrSetBorder('${v}',this)">${l}</button>
           `).join('')}
         </div>
-        <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:8px;">두께</div>
+        <div style="font-size:13px;font-weight:600;color:var(--label);margin-bottom:8px;">두께</div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-          <input type="range" id="qr-bw" min="0" max="24" value="${qrState.borderWidth}" oninput="qrSlider('qr-bw','qr-bw-val')" style="flex:1;accent-color:#fff;">
-          <span id="qr-bw-val" style="font-size:13px;color:#555;min-width:36px;text-align:right;">${qrState.borderWidth}px</span>
+          <input type="range" id="qr-bw" min="0" max="24" value="${qrState.borderWidth}" oninput="qrSlider('qr-bw','qr-bw-val')" style="flex:1;accent-color:var(--primary);">
+          <span id="qr-bw-val" style="font-size:13px;color:var(--muted);min-width:36px;text-align:right;">${qrState.borderWidth}px</span>
         </div>
-        <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:8px;">여백</div>
+        <div style="font-size:13px;font-weight:600;color:var(--label);margin-bottom:8px;">여백</div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-          <input type="range" id="qr-pad" min="0" max="40" value="${qrState.padding}" oninput="qrSlider('qr-pad','qr-pad-val')" style="flex:1;accent-color:#fff;">
-          <span id="qr-pad-val" style="font-size:13px;color:#555;min-width:36px;text-align:right;">${qrState.padding}px</span>
+          <input type="range" id="qr-pad" min="0" max="40" value="${qrState.padding}" oninput="qrSlider('qr-pad','qr-pad-val')" style="flex:1;accent-color:var(--primary);">
+          <span id="qr-pad-val" style="font-size:13px;color:var(--muted);min-width:36px;text-align:right;">${qrState.padding}px</span>
         </div>
-        <div style="font-size:13px;font-weight:600;color:#aaa;margin-bottom:9px;">테두리 색상</div>
-        <div id="qr-border-palette" style="display:flex;gap:7px;align-items:center;flex-wrap:nowrap;margin-bottom:14px;"></div>
+        <div style="font-size:13px;font-weight:600;color:var(--label);margin-bottom:9px;">테두리 색상</div>
+        <div id="qr-border-palette" style="display:flex;gap:7px;flex-wrap:nowrap;margin-bottom:14px;"></div>
 
-        <div style="height:1px;background:#1a1a1a;margin:14px 0;"></div>
-        <div style="font-size:11px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">오류 정정 레벨</div>
+        <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">오류 정정 레벨</div>
         <div style="display:flex;gap:8px;">
-          ${[['L','7%'],['M','15%'],['Q','25%'],['H★','30%']].map(([lv,desc],i)=>{
-            const v = ['L','M','Q','H'][i];
-            return `<button class="qr-ec-btn ${qrState.ec===v?'qr-ec-active':''}" onclick="qrSetEC('${v}',this)">
-              <span style="font-size:16px;font-weight:800;">${lv}</span>
-              <span style="font-size:11px;color:#555;">${desc}</span>
-            </button>`;
-          }).join('')}
+          ${[['L','7%'],['M','15%'],['Q','25%'],['H★','30%']].map(([lv,desc],i)=>{const v=['L','M','Q','H'][i];return`
+            <button class="qr-ec-btn ${qrState.ec===v?'qr-ec-active':''}" onclick="qrSetEC('${v}',this)">
+              <span class="lv">${lv}</span><span class="desc">${desc}</span>
+            </button>`;}).join('')}
         </div>
-        <p style="font-size:12px;color:#333;margin-top:9px;">H: 30% 손상돼도 인식 가능. 기본 권장.</p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:9px;">H: 30% 손상돼도 인식 가능. 기본 권장.</p>
       </div>
 
-      <!-- 미리보기 -->
       <div class="card" style="flex:1;display:flex;flex-direction:column;align-items:center;position:sticky;top:20px;">
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:20px;align-self:flex-start;">미리보기</div>
-        <div id="qr-stage" style="width:280px;height:280px;display:flex;align-items:center;justify-content:center;border:2px dashed #222;border-radius:8px;overflow:visible;position:relative;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:20px;align-self:flex-start;">미리보기</div>
+        <div id="qr-stage" style="width:${QR_STAGE}px;height:${QR_STAGE}px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:8px;overflow:visible;position:relative;">
           <div id="qr-inner" style="display:inline-block;line-height:0;transform-origin:center center;"><div id="qr-code"></div></div>
         </div>
-        <div style="margin-top:20px;width:304px;display:flex;flex-direction:column;gap:8px;">
+        <div style="margin-top:20px;width:${QR_STAGE+24}px;display:flex;flex-direction:column;gap:8px;">
           <input id="qr-filename" type="text" placeholder="파일명 (기본: 날짜_QR Code)">
           <button class="btn btn-primary" onclick="qrDownload()" style="width:100%;justify-content:center;">이미지 저장 (PNG)</button>
         </div>
       </div>
-    </div>
-  `;
-
-  // 버튼 스타일 주입
-  if (!document.getElementById('qr-styles')) {
-    const s = document.createElement('style');
-    s.id = 'qr-styles';
-    s.textContent = `
-      .qr-swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0;}
-      .qr-swatch:hover{transform:scale(1.2);}
-      .qr-swatch.sel{border-color:#fff;transform:scale(1.15);}
-      .qr-swatch[data-c="#ffffff"]{border-color:#333;}
-      .qr-plus{width:26px;height:26px;border-radius:6px;border:1.5px dashed #333;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#444;position:relative;flex-shrink:0;}
-      .qr-plus input{position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;border:none;padding:0;}
-      .qr-bstyle-btn{flex:1;padding:9px 4px;border:1.5px solid #1f1f1f;border-radius:8px;background:transparent;font-family:inherit;font-size:12px;color:#555;cursor:pointer;transition:all .15s;}
-      .qr-bstyle-btn:hover{border-color:#333;color:#aaa;}
-      .qr-bstyle-active{border-color:#fff !important;color:#fff !important;}
-      .qr-ec-btn{flex:1;padding:10px 4px;border:1.5px solid #1f1f1f;border-radius:8px;background:transparent;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;}
-      .qr-ec-btn:hover{border-color:#333;}
-      .qr-ec-active{border-color:#fff !important;}
-    `;
-    document.head.appendChild(s);
-  }
+    </div>`;
 
   if (!document.getElementById('qrcodejs')) {
     const sc = document.createElement('script');
@@ -1630,177 +1185,90 @@ function renderQR() {
     sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
     sc.onload = () => { qrBuildPalettes(); qrLiveUpdate(); };
     document.head.appendChild(sc);
-  } else {
-    qrBuildPalettes();
-    qrLiveUpdate();
-  }
+  } else { qrBuildPalettes(); qrLiveUpdate(); }
 
   document.getElementById('qr-url').addEventListener('input', qrLiveUpdate);
 }
 
 function qrBuildPalette(id, def, onPick) {
-  const wrap = document.getElementById(id);
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  let custom = null;
-  function sel(el, c) {
-    wrap.querySelectorAll('.qr-swatch').forEach(s => s.classList.remove('sel'));
-    el.classList.add('sel');
-    onPick(c); qrLiveUpdate();
-  }
-  QR_RAINBOW.forEach(c => {
-    const el = document.createElement('div');
-    el.className = 'qr-swatch'; el.style.background = c; el.dataset.c = c;
-    if (c === def) el.classList.add('sel');
-    el.onclick = () => sel(el, c);
-    wrap.appendChild(el);
+  const wrap = document.getElementById(id); if (!wrap) return; wrap.innerHTML='';
+  let custom=null;
+  function sel(el,c) { wrap.querySelectorAll('.qr-swatch').forEach(s=>s.classList.remove('sel')); el.classList.add('sel'); onPick(c); qrLiveUpdate(); }
+  QR_RAINBOW.forEach(c=>{
+    const el=document.createElement('div'); el.className='qr-swatch'; el.style.background=c; el.dataset.c=c;
+    if(c===def) el.classList.add('sel'); el.onclick=()=>sel(el,c); wrap.appendChild(el);
   });
-  const plus = document.createElement('div');
-  plus.className = 'qr-plus';
-  plus.innerHTML = `<span style="pointer-events:none">+</span><input type="color" value="#ff0000">`;
-  plus.querySelector('input').addEventListener('input', function() {
-    const c = this.value;
-    if (!custom) { custom = document.createElement('div'); custom.className = 'qr-swatch'; wrap.insertBefore(custom, plus); }
-    custom.style.background = c; custom.dataset.c = c;
-    custom.onclick = () => sel(custom, c);
-    sel(custom, c);
+  const plus=document.createElement('div'); plus.className='qr-plus';
+  plus.innerHTML=`<span style="pointer-events:none">+</span><input type="color" value="#ff0000">`;
+  plus.querySelector('input').addEventListener('input',function(){
+    const c=this.value;
+    if(!custom){custom=document.createElement('div');custom.className='qr-swatch';wrap.insertBefore(custom,plus);}
+    custom.style.background=c; custom.dataset.c=c; custom.onclick=()=>sel(custom,c); sel(custom,c);
   });
   wrap.appendChild(plus);
 }
-
 function qrBuildPalettes() {
-  qrBuildPalette('qr-fg-palette',     qrState.fg,          c => qrState.fg = c);
-  qrBuildPalette('qr-bg-palette',     qrState.bg,          c => qrState.bg = c);
-  qrBuildPalette('qr-border-palette', qrState.borderColor, c => qrState.borderColor = c);
+  qrBuildPalette('qr-fg-palette',qrState.fg,c=>qrState.fg=c);
+  qrBuildPalette('qr-bg-palette',qrState.bg,c=>qrState.bg=c);
+  qrBuildPalette('qr-border-palette',qrState.borderColor,c=>qrState.borderColor=c);
 }
-
-function qrSlider(id, valId) {
-  const v = document.getElementById(id)?.value;
-  if (v !== undefined) { document.getElementById(valId).textContent = v + 'px'; qrLiveUpdate(); }
-}
-
-function qrSetBorder(style, btn) {
-  qrState.borderStyle = style;
-  document.querySelectorAll('.qr-bstyle-btn').forEach(b => b.classList.remove('qr-bstyle-active'));
-  btn.classList.add('qr-bstyle-active');
-  qrLiveUpdate();
-}
-
-function qrSetEC(level, btn) {
-  qrState.ec = level;
-  document.querySelectorAll('.qr-ec-btn').forEach(b => b.classList.remove('qr-ec-active'));
-  btn.classList.add('qr-ec-active');
-  qrLiveUpdate();
-}
-
-function qrLiveUpdate() {
-  clearTimeout(qrTimer);
-  qrTimer = setTimeout(qrRender, 40);
-}
-
+function qrSlider(id,valId) { const v=document.getElementById(id)?.value; if(v!==undefined){document.getElementById(valId).textContent=v+'px';qrLiveUpdate();} }
+function qrSetBorder(style,btn) { qrState.borderStyle=style; document.querySelectorAll('.qr-bstyle-btn').forEach(b=>b.classList.remove('qr-bstyle-active')); btn.classList.add('qr-bstyle-active'); qrLiveUpdate(); }
+function qrSetEC(level,btn) { qrState.ec=level; document.querySelectorAll('.qr-ec-btn').forEach(b=>b.classList.remove('qr-ec-active')); btn.classList.add('qr-ec-active'); qrLiveUpdate(); }
+function qrLiveUpdate() { clearTimeout(qrTimer); qrTimer=setTimeout(qrRender,40); }
 function qrRender() {
-  if (typeof QRCode === 'undefined') return;
-  const url = document.getElementById('qr-url')?.value.trim() || 'https://example.com';
-  const ecMap = { L: QRCode.CorrectLevel.L, M: QRCode.CorrectLevel.M, Q: QRCode.CorrectLevel.Q, H: QRCode.CorrectLevel.H };
-  const bw  = parseInt(document.getElementById('qr-bw')?.value) || 0;
-  const pad = parseInt(document.getElementById('qr-pad')?.value) || 0;
-  const code = document.getElementById('qr-code');
-  if (!code) return;
-  code.innerHTML = '';
-  new QRCode(code, { text: url, width: QR_STAGE, height: QR_STAGE, colorDark: qrState.fg, colorLight: qrState.bg, correctLevel: ecMap[qrState.ec] });
-  setTimeout(() => {
-    const inner = document.getElementById('qr-inner');
-    if (!inner) return;
-    inner.style.padding = pad + 'px';
-    inner.style.background = qrState.bg;
-    if (qrState.borderStyle === 'none' || bw === 0) {
-      inner.style.border = 'none'; inner.style.borderRadius = '0';
-    } else {
-      inner.style.border = `${bw}px ${qrState.borderStyle === 'dashed' ? 'dashed' : 'solid'} ${qrState.borderColor}`;
-      inner.style.borderRadius = qrState.borderStyle === 'rounded' ? '12px' : '0';
-    }
-    const total = QR_STAGE + pad * 2 + bw * 2;
-    const scale = total > QR_STAGE ? QR_STAGE / total : 1;
-    inner.style.transform = `scale(${scale})`;
-  }, 60);
+  if(typeof QRCode==='undefined') return;
+  const url=document.getElementById('qr-url')?.value.trim()||'https://example.com';
+  const ecMap={L:QRCode.CorrectLevel.L,M:QRCode.CorrectLevel.M,Q:QRCode.CorrectLevel.Q,H:QRCode.CorrectLevel.H};
+  const bw=parseInt(document.getElementById('qr-bw')?.value)||0, pad=parseInt(document.getElementById('qr-pad')?.value)||0;
+  const code=document.getElementById('qr-code'); if(!code) return;
+  code.innerHTML='';
+  new QRCode(code,{text:url,width:QR_STAGE,height:QR_STAGE,colorDark:qrState.fg,colorLight:qrState.bg,correctLevel:ecMap[qrState.ec]});
+  setTimeout(()=>{
+    const inner=document.getElementById('qr-inner'); if(!inner) return;
+    inner.style.padding=pad+'px'; inner.style.background=qrState.bg;
+    if(qrState.borderStyle==='none'||bw===0){inner.style.border='none';inner.style.borderRadius='0';}
+    else{inner.style.border=`${bw}px ${qrState.borderStyle==='dashed'?'dashed':'solid'} ${qrState.borderColor}`;inner.style.borderRadius=qrState.borderStyle==='rounded'?'12px':'0';}
+    const total=QR_STAGE+pad*2+bw*2, scale=total>QR_STAGE?QR_STAGE/total:1;
+    inner.style.transform=`scale(${scale})`;
+  },60);
 }
-
 function qrReset() {
-  qrState = { ...QR_DEFAULTS };
-  document.getElementById('qr-url').value = 'https://example.com';
-  document.getElementById('qr-bw').value = QR_DEFAULTS.borderWidth;
-  document.getElementById('qr-pad').value = QR_DEFAULTS.padding;
-  document.getElementById('qr-bw-val').textContent = QR_DEFAULTS.borderWidth + 'px';
-  document.getElementById('qr-pad-val').textContent = QR_DEFAULTS.padding + 'px';
-  qrBuildPalettes();
-  qrLiveUpdate();
+  qrState={...QR_DEFAULTS};
+  document.getElementById('qr-url').value='https://example.com';
+  document.getElementById('qr-bw').value=QR_DEFAULTS.borderWidth; document.getElementById('qr-bw-val').textContent=QR_DEFAULTS.borderWidth+'px';
+  document.getElementById('qr-pad').value=QR_DEFAULTS.padding; document.getElementById('qr-pad-val').textContent=QR_DEFAULTS.padding+'px';
+  qrBuildPalettes(); qrLiveUpdate();
 }
-
 async function qrShortenUrl() {
-  const url = document.getElementById('qr-url')?.value.trim();
-  if (!url) return;
-  const btn = document.getElementById('qr-shorten-btn');
-  const msg = document.getElementById('qr-short-msg');
-  btn.disabled = true; btn.textContent = '생성 중...';
-  msg.textContent = '';
-  try {
-    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
-    if (!res.ok) throw new Error();
-    document.getElementById('qr-url').value = (await res.text()).trim();
-    qrLiveUpdate();
-  } catch(e) { msg.textContent = '생성 실패. 다시 시도해주세요.'; }
-  finally { btn.disabled = false; btn.textContent = '링크 줄이기'; }
+  const url=document.getElementById('qr-url')?.value.trim(); if(!url) return;
+  const btn=document.getElementById('qr-shorten-btn'), msg=document.getElementById('qr-short-msg');
+  btn.disabled=true; btn.textContent='생성 중...'; msg.textContent='';
+  try{ const res=await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`); if(!res.ok) throw new Error(); document.getElementById('qr-url').value=(await res.text()).trim(); qrLiveUpdate(); }
+  catch(e){ msg.textContent='생성 실패. 다시 시도해주세요.'; }
+  finally{ btn.disabled=false; btn.textContent='링크 줄이기'; }
 }
-
 function qrCopyUrl() {
-  const url = document.getElementById('qr-url')?.value.trim();
-  if (!url) return;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.getElementById('qr-copy-btn');
-    btn.textContent = '복사됨';
-    setTimeout(() => { btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`; }, 1500);
-  });
+  const url=document.getElementById('qr-url')?.value.trim(); if(!url) return;
+  navigator.clipboard.writeText(url).then(()=>{ const btn=document.getElementById('qr-copy-btn'); btn.textContent='복사됨'; setTimeout(()=>{btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;},1500); });
 }
-
 function qrDownload() {
-  const inner = document.getElementById('qr-inner');
-  const canvas = inner?.querySelector('canvas');
-  const img    = inner?.querySelector('img');
-  const pad = parseInt(document.getElementById('qr-pad')?.value) || 0;
-  const bw  = parseInt(document.getElementById('qr-bw')?.value)  || 0;
-  const total = QR_STAGE + pad * 2 + bw * 2;
-  const out = document.createElement('canvas');
-  out.width = total; out.height = total;
-  const ctx = out.getContext('2d');
-  const r = (qrState.borderStyle === 'rounded' && bw > 0) ? 12 : 0;
-  const half = bw / 2;
-  ctx.beginPath();
-  if (r > 0) ctx.roundRect(0, 0, total, total, r + half); else ctx.rect(0, 0, total, total);
-  ctx.closePath(); ctx.clip();
-  ctx.fillStyle = qrState.bg; ctx.fillRect(0, 0, total, total);
-  if (qrState.borderStyle !== 'none' && bw > 0) {
-    ctx.strokeStyle = qrState.borderColor; ctx.lineWidth = bw;
-    ctx.setLineDash(qrState.borderStyle === 'dashed' ? [8,4] : []);
-    if (r > 0) { ctx.beginPath(); ctx.roundRect(half, half, total-bw, total-bw, r); ctx.stroke(); }
-    else ctx.strokeRect(half, half, total-bw, total-bw);
-  }
-  const draw = src => {
-    const image = new Image();
-    image.onload = () => {
-      ctx.drawImage(image, bw+pad, bw+pad, QR_STAGE, QR_STAGE);
-      const today = new Date();
-      const def = `${String(today.getFullYear()).slice(2)}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}_QR Code`;
-      const fname = (document.getElementById('qr-filename')?.value.trim() || def).replace(/\.png$/i,'');
-      const a = document.createElement('a');
-      a.href = out.toDataURL('image/png'); a.download = fname + '.png'; a.click();
-    };
-    image.src = src;
-  };
-  if (canvas) draw(canvas.toDataURL('image/png'));
-  else if (img) draw(img.src);
+  const inner=document.getElementById('qr-inner'), canvas=inner?.querySelector('canvas'), img=inner?.querySelector('img');
+  const pad=parseInt(document.getElementById('qr-pad')?.value)||0, bw=parseInt(document.getElementById('qr-bw')?.value)||0;
+  const total=QR_STAGE+pad*2+bw*2, out=document.createElement('canvas'); out.width=total; out.height=total;
+  const ctx=out.getContext('2d'), r=(qrState.borderStyle==='rounded'&&bw>0)?12:0, half=bw/2;
+  ctx.beginPath(); if(r>0)ctx.roundRect(0,0,total,total,r+half); else ctx.rect(0,0,total,total); ctx.closePath(); ctx.clip();
+  ctx.fillStyle=qrState.bg; ctx.fillRect(0,0,total,total);
+  if(qrState.borderStyle!=='none'&&bw>0){ ctx.strokeStyle=qrState.borderColor; ctx.lineWidth=bw; ctx.setLineDash(qrState.borderStyle==='dashed'?[8,4]:[]);
+    if(r>0){ctx.beginPath();ctx.roundRect(half,half,total-bw,total-bw,r);ctx.stroke();}else ctx.strokeRect(half,half,total-bw,total-bw); }
+  const draw=src=>{const image=new Image();image.onload=()=>{ctx.drawImage(image,bw+pad,bw+pad,QR_STAGE,QR_STAGE);
+    const today=new Date(),def=`${String(today.getFullYear()).slice(2)}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}_QR Code`;
+    const fname=(document.getElementById('qr-filename')?.value.trim()||def).replace(/\.png$/i,'');
+    const a=document.createElement('a');a.href=out.toDataURL('image/png');a.download=fname+'.png';a.click();};image.src=src;};
+  if(canvas)draw(canvas.toDataURL('image/png'));else if(img)draw(img.src);
 }
 
-// ── BOOT ──────────────────────────────────────────
+// ── BOOT ─────────────────────────────────────────
 initAuth();
 </script>
 </body>
